@@ -13,6 +13,16 @@ On OS X with Homebrew you can just run `brew install go`.
 
 
 ## Development
+### Modules
+To reinitialize the modules and recreate the dependancy tree the following can be done:
+```
+cd $GOPATH/src/clairvoyance
+rm go.mod go.sum
+go mod init
+go mod tidy
+```
+
+
 ### Build and Run
 Run the binary after it's been packaged:
 ```console
