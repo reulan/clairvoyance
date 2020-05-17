@@ -1,4 +1,4 @@
-package clairvoyance
+package main
 
 import (
 	"github.com/mpmsimo/clairvoyance/cmd"
