@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mpmsimo/clairvoyance/version"
 	"github.com/spf13/cobra"
+
+	"clairvoyance/version"
 )
 
 // versionCmd represents the version command

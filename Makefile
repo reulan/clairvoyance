@@ -1,7 +1,4 @@
-
 .PHONY: build build-alpine clean test help default
-
-
 
 BIN_NAME=clairvoyance
 
