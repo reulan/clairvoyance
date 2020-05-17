@@ -12,6 +12,15 @@ This project requires Go to be installed.
 On OS X with Homebrew you can just run `brew install go`.
 
 
+Directory structure:
+```
+app/        - Custom clairvoyance code
+cmd/        - Command line helper
+config/     - Viper configuration
+log/        - Logrus log settings
+version/    - Application versioning
+```
+
 ## Development
 ### Modules
 To reinitialize the modules and recreate the dependancy tree the following can be done:
