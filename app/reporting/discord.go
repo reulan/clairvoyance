@@ -21,18 +21,13 @@ var (
 	ContentType string = "application/json"
 )
 
-// TODO: Gather then format Terraform drift report results
-//var report = map[string]string{"content": "hello world from Clairvoyance! content!", "message": "hw from cv - message!"}
-//var reportJSON, _ := json.Marshal(report)
-//var reportString string = "Clairvoyance says hello to this world."
-
-func SendReport() {
+func SendReport(message string) {
 	// Populate the JSON payload and Marshall data for request
-	reportString := map[string]string{
-		"content": "Hello discord!",
+	webhookData := map[string]string{
+		"content": message,
 		"username": "clairvoyance",
 	}
-	reportJSON, err := json.Marshal(reportString)
+	data, err := json.Marshal(webhookData)
 
 	// Create the HTTP socket
 	timeout := time.Duration(10 * time.Second)
@@ -45,7 +40,7 @@ func SendReport() {
 	params.Set("wait", "true")
 
 	// Format and send the HTTP request
-	request, err := http.NewRequest("POST", DiscordWebhookURL, bytes.NewBuffer(reportJSON))
+	request, err := http.NewRequest("POST", DiscordWebhookURL, bytes.NewBuffer(data))
 	request.Header.Set("Content-Type", ContentType)
 	request.Header.Set("X-Custom-Header", "clairvoyance")
 	request.Header.Set("Content-Length", strconv.Itoa(len(params.Encode())))
