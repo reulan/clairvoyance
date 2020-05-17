@@ -40,10 +40,12 @@ From the root directory you can run:
 
 ``make test``
 
+Currently there are no tests...
+
 ### Build and Run
 Run the binary after it's been packaged:
 ```console
-$ make
+$ make build
 $ ./bin/clairvoyance
 ```
 
