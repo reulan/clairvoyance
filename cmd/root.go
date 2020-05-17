@@ -12,7 +12,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "Clairvoyance",
-	Short: "Terraform state drift detection and reporting."
+	Short: "Terraform state drift detection and reporting.",
     Long: `Usage:
             clairvoyance report.`,
 }

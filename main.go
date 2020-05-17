@@ -1,11 +1,9 @@
 package main
 
 import (
-	"github.com/mpmsimo/clairvoyance/cmd"
+	"clairvoyance/cmd"
 )
 
 func main() {
-
 	cmd.Execute()
-
 }

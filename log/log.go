@@ -4,7 +4,8 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/mpmsimo/clairvoyance/config"
+
+	"clairvoyance/config"
 )
 
 // Logger defines a set of methods for writing application logs. Derived from and

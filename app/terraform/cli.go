@@ -6,6 +6,8 @@ import (
 
 	tfexec "github.com/kmoe/terraform-exec"
 	tfjson "github.com/hashicorp/terraform-json"
+
+	"clairvoyance/log"
 )
 
 func Configure() tfexec.Config {
@@ -13,12 +15,13 @@ func Configure() tfexec.Config {
 	cfg := tfexec.Config{
 		WorkingDir: workingDir,
 	}
+	log.Info("Clarivoyance - Created tfexec configuration")
 	return cfg
 }
 
 func Init(cfg tfexec.Config) {
 	// Run `terraform init` so that the working directories state can be initialized.
-	fmt.Println("Clarivoyance - terraform init")
+	log.Info("Clarivoyance - terraform init")
 	err := cfg.Init()
 	if err != nil {
 		panic(err)
@@ -27,7 +30,7 @@ func Init(cfg tfexec.Config) {
 
 func Show(cfg tfexec.Config) *tfjson.State {
 	// Run `terraform show` against the state defined in the working directory.
-	fmt.Println("Clarivoyance - terraform show")
+	log.Info("Clarivoyance - terraform show")
 	state, err := cfg.Show()
 	if err != nil {
 		panic(err)

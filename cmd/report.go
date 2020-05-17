@@ -5,16 +5,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mpmsimo/clairvoyance/app/reporting"
+	"clairvoyance/app/reporting"
 )
 
 var reportCmd = &cobra.Command{
 	Use:   "Clairvoyance",
-	Short: "Terraform state drift detection and reporting."
+	Short: "Terraform state drift detection and reporting.",
     Long: `Usage:
             clairvoyance report.`,
             Run: func(cmd *cobra.Command, args []string) {
-            	reporting.SendMessage()
+            	reporting.SendReport()
 			},
 }
 func init() {
