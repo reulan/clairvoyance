@@ -43,3 +43,19 @@ func Show(cfg tfexec.Config) *tfjson.State {
 
 	return state
 }
+
+func Plan(cfg tfexec.Config) *tfjson.State {
+	// Run `terraform plan` against the state defined in the working directory.
+	log.Info("Clarivoyance - terraform plan")
+	state, err := cfg.Plan()
+	if err != nil {
+		panic(err)
+	}
+
+	// Print all returned values from the `terraform plan` command (of type *tfjson.State)
+	fmt.Println(state.FormatVersion) // "0.1"
+	fmt.Println(state.TerraformVersion)
+	fmt.Println(state.Values)
+
+	return state
+}

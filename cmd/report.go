@@ -10,6 +10,18 @@ import (
 	"clairvoyance/app/terraform"
 )
 
+/*
+In order for a report to be done, a tfexec config should be populated and we need to ensure the following
+values have been captured.
+
+The following options for additional reporting functionality.
+	clairvoyance report:
+		--path <working_directory>
+		--config <clairvoyance_config> : *what does a config file look like, where is this loaded from? (based of tfexc cfg?)
+		--output [<discord>, <slack>]
+		--debug
+ */
+
 var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Reports terraform drift to Discord",

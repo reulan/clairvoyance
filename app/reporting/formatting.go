@@ -23,22 +23,15 @@ func FormatDriftReport(message string) string {
 }
 
 func DebugFormatMessage() string {
-	formattedMessage := "Syntax check:" +
-		"\n" +
+	formattedMessage := "Hello world!\n" +
 		"```" +
-		"code" +
-		"block" +
+		"code\n" +
+		"block\n" +
 		"```" +
-		"> indent" +
-		"*bold*" +
-		"_italics_" +
-		"\n - do you need to new line?" +
-		"`single line code` " +
-		"```" +
-		"I used to be plat" +
-		"\n" +
-		"but now I am gold" +
-		"```"
+		"\n\n" +
+		"> who me?" +
+		"\n\n" +
+		"yes, *YOU*!"
 
 	log.Printf("formatting - Debug format message:\n%s", formattedMessage)
 	return formattedMessage
