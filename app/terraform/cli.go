@@ -4,20 +4,28 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kmoe/terraform-exec/tfexec"
 	tfjson "github.com/hashicorp/terraform-json"
+	"github.com/kmoe/terraform-exec/tfexec"
 
 	"clairvoyance/log"
 )
 
+var WorkingDir = os.Getenv("GOPATH") + "/src/github.com/kmoe/terraform-exec/testdata"
 
-func Configure(ExecPath string, WorkingDir string) tfexec.Terraform{} {
-	// Override parameters for testing
-	ExecPath := ""
-	WorkingDir := os.Getenv("GOPATH") + "/src/github.com/kmoe/terraform-exec/testdata"
+// Override parameters for testing
+// WorkingDir string
 
+func ConfigureTerraform() *tfexec.Terraform {
 	// Generate a new tfexec Terraform configuration
-	tfcfg, err := tfexec.NewTerraform(ExecPath, WorkingDir)
+	execPath, err := tfexec.FindTerraform()
+	if err != nil {
+		panic(err)
+	}
+
+	tfcfg, err := tfexec.NewTerraform(execPath, WorkingDir)
+	if err != nil {
+		panic(err)
+	}
 
 	log.Info("Clarivoyance - Created tfexec configuration.")
 	return tfcfg
@@ -48,18 +56,24 @@ func Show(tfcfg tfexec.Terraform) *tfjson.State {
 	return state
 }
 
-func Plan(tfcfg tfexec.Terraform) *tfjson.State {
+func Plan(tfcfg tfexec.Terraform) {
 	// Run `terraform plan` against the state defined in the working directory.
 	log.Info("Clarivoyance - terraform plan on {%s}", tfcfg.)
-	state, err := cfg.Plan()
+
+	// Currently unimplemented in tfexec
+	err := tfcfg.Plan()
 	if err != nil {
 		panic(err)
 	}
+}
 
-	// Print all returned values from the `terraform plan` command (of type *tfjson.State)
-	fmt.Println(state.FormatVersion) // "0.1"
-	fmt.Println(state.TerraformVersion)
-	fmt.Println(state.Values)
+func Apply(tfcfg tfexec.Terraform) {
+	// Run `terraform apply` against the state defined in the working directory.
+	log.Info("Clarivoyance - terraform apply on {%s}", tfcfg.)
 
-	return state
+	// Currently unimplemented in tfexec
+	err := tfcfg.Apply()
+	if err != nil {
+		panic(err)
+	}
 }

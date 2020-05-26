@@ -16,10 +16,16 @@ values have been captured.
 
 The following options for additional reporting functionality.
 	clairvoyance report:
+		--command <init/plan/apply/show> (Performs limited Terraform CLI logic, a more comprehensive report behaviour is used)
 		--path <working_directory>
-		--config <clairvoyance_config> : *what does a config file look like, where is this loaded from? (based of tfexc cfg?)
-		--output [<discord>, <slack>]
-		--debug
+		--output [<discord>, <stdout>]
+		--debug (overrides --output)
+
+		TODO: *what does a config file look like, where is this loaded from? (based off tfexc cfg?)
+		--config <clairvoyance_config>
+
+	clairvoyance report --path ~/noobshack --output discord
+	clairvoyance report --command show --path ~/noobshack --output stdout
  */
 
 var reportCmd = &cobra.Command{
@@ -30,29 +36,34 @@ var reportCmd = &cobra.Command{
 		clairvoyance report`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-			// TODO: Implement parsing of atlantis.yaml to know where to search for Terraform projects
-			tfexecCfg := terraform.Configure()
+		//optCommand, _ := cmd.Flags().GetString("command")
+		//optPath, _ := cmd.Flags().GetString("path")
+		//optOutput, _ := cmd.Flags().GetString("output")
+		optDebug, _ := cmd.Flags().GetBool("debug")
+
+		tfexecCfg := terraform.ConfigureTerraform()
 			terraform.Init(tfexecCfg)
+
 			tfState := terraform.Show(tfexecCfg)
 
 			outputs := tfState.Values.Outputs
 			log.Info("Outputs:\n")
 			log.Info(outputs)
-
-			message := fmt.Sprintf("Project: [%s] is running version Terraform %s.", tfexecCfg.WorkingDir, tfState.TerraformVersion)
+		///Users/mpmsimo/noobshack/valorant
+			message := fmt.Sprintf("Project: [%s] is running version Terraform %s.", tfexecCfg, tfState.TerraformVersion)
 			log.Info("Message:\n")
 			log.Info(message)
 			var sendMessage string
 
-			optDebug, _ := cmd.Flags().GetBool("debug")
-			if optDebug {
+
+		if optDebug {
 				sendMessage = reporting.DebugFormatMessage()
 			} else {
 				sendMessage = reporting.FormatDriftReport(message)
 			}
 			log.Info("SendMessage:\n")
 			log.Info(sendMessage)
-			reporting.SendReport(sendMessage)
+			reporting.SendMessageDiscord(sendMessage)
 		},
 }
 

@@ -36,4 +36,3 @@ func DebugFormatMessage() string {
 	log.Printf("formatting - Debug format message:\n%s", formattedMessage)
 	return formattedMessage
 }
-
