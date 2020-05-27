@@ -2,8 +2,9 @@
 Drift detection and reporting for Terraform.
 
 Currently, the software does the following:
-- Initializes and inspection of a Terraform Project
-- Reporting to a Discord text channel via webhook
+- Configure Terraform Project with a tf binary + working dir
+- Initialize and show the statefile information for the Terraform project
+- Reporting to Discord text channel via webhook or standard output
 
 In the future I would like to support:
 - Planning multiple states across backends
@@ -11,18 +12,6 @@ In the future I would like to support:
 - Terraform Report stats (added/changed/deleted, total projects, versions, etc)
 - Clarivoyance metadata (how long it takes for a plan or report to be completed + app metrics)
 - Generate HCL code suggestions
-
-### Project setup
-The project is structured in the following way
-```
-app/            - Custom clairvoyance code
-  terraform/        - Helpers based on terraform-exec
-  reporting/        - Output to Discord
-cmd/            - Command line helper
-config/         - Viper configuration
-log/            - Logrus log settings
-version/        - Application versioning
-```
 
 ## Usage
 ### Setting Environment variables
@@ -59,6 +48,7 @@ However, test driven development should is the way to go forward for this projec
 Run the binary after it's been packaged:
 ```console
 $ make build
+$ ./bin/clairvoyance
 $ ./bin/clairvoyance
 ```
 

@@ -3,6 +3,8 @@ package cmd
 import (
 	"clairvoyance/log"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -16,10 +18,9 @@ values have been captured.
 
 The following options for additional reporting functionality.
 	clairvoyance report:
-		--command <init/plan/apply/show> (Performs limited Terraform CLI logic, a more comprehensive report behaviour is used)
+		--command <show/plan/apply> (Performs limited Terraform CLI logic, a more comprehensive report behaviour is used)
 		--path <working_directory>
 		--output [<discord>, <stdout>]
-		--debug (overrides --output)
 
 		TODO: *what does a config file look like, where is this loaded from? (based off tfexc cfg?)
 		--config <clairvoyance_config>
@@ -38,37 +39,35 @@ var reportCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//optCommand, _ := cmd.Flags().GetString("command")
 		//optPath, _ := cmd.Flags().GetString("path")
-		//optOutput, _ := cmd.Flags().GetString("output")
-		optDebug, _ := cmd.Flags().GetBool("debug")
+		optOutput, _ := cmd.Flags().GetString("output")
 
-		tfexecCfg := terraform.ConfigureTerraform()
-			terraform.Init(tfexecCfg)
+		// configure service - referring to a tfexec config (a single terraform project definition)
+		//TODO: copy files over to the container
+		var workingDir = os.Getenv("GOPATH") + "/src/github.com/kmoe/terraform-exec/testdata"
+		optPath, _ := filepath.Abs(workingDir)
+		service := terraform.ConfigureTerraform(optPath)
+		terraform.Init(service)
 
-			tfState := terraform.Show(tfexecCfg)
+		// Bypass optPath as only Show is supported as of now
+		state := terraform.Show(service)
+		formattedOutput := reporting.FormatTerraformShow(state)
 
-			outputs := tfState.Values.Outputs
-			log.Info("Outputs:\n")
-			log.Info(outputs)
-		///Users/mpmsimo/noobshack/valorant
-			message := fmt.Sprintf("Project: [%s] is running version Terraform %s.", tfexecCfg, tfState.TerraformVersion)
-			log.Info("Message:\n")
-			log.Info(message)
-			var sendMessage string
-
-
-		if optDebug {
-				sendMessage = reporting.DebugFormatMessage()
-			} else {
-				sendMessage = reporting.FormatDriftReport(message)
+		// Where is the message going?
+		if optOutput == "discord" {
+			//reporting.SendMessageDiscord(formattedOutput)
+			} else if optOutput == "stdout" {
+				//reporting.SendMessageStdout(formattedOutput)
+				reporting.SendJSONStdout(formattedOutput)
+		} else {
+				log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
 			}
-			log.Info("SendMessage:\n")
-			log.Info(sendMessage)
-			reporting.SendMessageDiscord(sendMessage)
 		},
 }
 
 func init() {
 	fmt.Println("cmd/report/go running.")
 	rootCmd.AddCommand(reportCmd)
-	reportCmd.Flags().BoolP("debug", "d", false, "Sends a debug message to the channel instead of the drift report.")
+	//reportCmd.Flags().StringP("command", "c", "show", "Performs a specific Terraform command against the given project. (defaults to Show)")
+	//reportCmd.Flags().StringP("path", "p", "/path/to/terraform/project", "Specify the path of the Terraform project you'd like to report on")
+	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
 }

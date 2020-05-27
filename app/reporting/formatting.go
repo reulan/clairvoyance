@@ -1,14 +1,13 @@
 package reporting
 
 import (
+	"encoding/json"
 	"fmt"
+
+	tfjson "github.com/hashicorp/terraform-json"
 
 	"clairvoyance/log"
 )
-
-func FormatCodeBlock(message string) string {
-	return fmt.Sprintf("\n```\n%s\n```", message)
-}
 
 func FormatDriftReport(message string) string {
 	var formattedMessage string = fmt.Sprintf("Terraform Drift Detection Report"+
@@ -22,17 +21,12 @@ func FormatDriftReport(message string) string {
 	return formattedMessage
 }
 
-func DebugFormatMessage() string {
-	formattedMessage := "Hello world!\n" +
-		"```" +
-		"code\n" +
-		"block\n" +
-		"```" +
-		"\n\n" +
-		"> who me?" +
-		"\n\n" +
-		"yes, *YOU*!"
+// Terraform Output
+func FormatTerraformShow(state *tfjson.State) []byte{
+	output, err := json.MarshalIndent(state, "", "\t")
+	if err != nil {
+		log.Errorf("reporting/formatting - %s", err)
+	}
 
-	log.Printf("formatting - Debug format message:\n%s", formattedMessage)
-	return formattedMessage
+	return output
 }
