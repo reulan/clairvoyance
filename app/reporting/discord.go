@@ -21,7 +21,7 @@ var (
 	ContentType string = "application/json"
 )
 
-func SendReport(message string) {
+func SendMessageDiscord(message string) {
 	// Populate the JSON payload and Marshall data for request
 	webhookData := map[string]string{
 		"content": message,
