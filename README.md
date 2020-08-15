@@ -6,6 +6,9 @@ Currently, the software does the following:
 - Initialize and show the statefile information for the Terraform project
 - Reporting to Discord text channel via webhook or standard output
 
+In development:
+- sending application metrics to Honeycomb (toggleable)
+
 In the future I would like to support:
 - Planning multiple states across backends
 - Terraform project detection (local file, atlantis.yaml, Terraform Cloud workspaces)
@@ -25,7 +28,12 @@ The Discord secret expects to contain everything after the webhooks route:
 See Development/Build and Run below
 
 ## Development
-This project requires Go to be installed. 
+My development environment will be either using Linux or MacOS. If you need an exact copy of my dev machine, review my [dotfiles](https://github.com/reulan/dotfiles) for
+my exact system setup.
+
+### Dependancies
+This project requires Go to be installed and configured with a valid `GOPATH` and `GOBIN`. 
+
 On OS X with Homebrew you can just run `brew install go`.
 
 ### Modules
@@ -50,6 +58,14 @@ Run the binary after it's been packaged:
 $ make build
 $ ./bin/clairvoyance
 $ ./bin/clairvoyance
+```
+
+### Streamlined dev process via Makefile
+```
+make cv-mod     # sets up Golang deps
+make cv-test    # noop for now (no tests...)
+make cv-build   # creates the Golang binary
+make cv-run     # locally executes the binary
 ```
 
 ## Additional information

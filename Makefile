@@ -24,11 +24,6 @@ help:
 	@echo '    make clean           Clean the directory tree.'
 	@echo
 
-build:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X github.com/mpmsimo/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/mpmsimo/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
-
 get-deps:
 	dep ensure
 
@@ -56,6 +51,22 @@ push: tag
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
 
-test:
+### Clairvoyance directives
+cv-test:
 	go test ./...
 
+cv-mod: 
+	@echo "installing Golang mods for ${BIN_NAME} ${VERSION}"
+	rm ${GOPATH}/src/clairvoyance/go.mod go.sum || true
+	rm ${GOPATH}/src/clairvoyance/go.sum || true
+	go mod init
+	go mod tidy
+
+cv-build: cv-mod
+	@echo "building ${BIN_NAME} ${VERSION}"
+	@echo "GOPATH=${GOPATH}"
+	go build -ldflags "-X github.com/mpmsimo/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/mpmsimo/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
+
+cv-run:
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance
