@@ -16,6 +16,7 @@ In the future I would like to support:
 ## Usage
 ### Setting Environment variables
 The following environment variables will need to be set for `clairvoyance` to run:
+- `DISCORD_WEBHOOK_NAME` (just a string, typically the discord channel name. e.x. `#clairvoyance`)
 - `DISCORD_WEBHOOK_SECRET`
 
 The Discord secret expects to contain everything after the webhooks route:

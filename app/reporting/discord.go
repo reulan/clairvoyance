@@ -14,17 +14,17 @@ import (
 )
 
 var (
-    // Sends a message to #clairvoyance in the noobshack discord.
-    DiscordWebhookName string = "#clairvoyance in noobshack"
-    DiscordWebhookSecret string = os.Getenv("DISCORD_WEBHOOK_SECRET")
-	DiscordWebhookURL string = "https://discordapp.com/api/webhooks/" + DiscordWebhookSecret
-	ContentType string = "application/json"
+	// Sends a message to #clairvoyance in the noobshack discord.
+	DiscordWebhookName   string = os.Getenv("DISCORD_WEBHOOK_NAME")
+	DiscordWebhookSecret string = os.Getenv("DISCORD_WEBHOOK_SECRET")
+	DiscordWebhookURL    string = "https://discordapp.com/api/webhooks/" + DiscordWebhookSecret
+	ContentType          string = "application/json"
 )
 
 func SendMessageDiscord(message string) {
 	// Populate the JSON payload and Marshall data for request
 	webhookData := map[string]string{
-		"content": message,
+		"content":  message,
 		"username": "clairvoyance",
 	}
 	data, err := json.Marshal(webhookData)

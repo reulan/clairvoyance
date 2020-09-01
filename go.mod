@@ -3,12 +3,9 @@ module clairvoyance
 go 1.13
 
 require (
-	github.com/hashicorp/go-version v1.2.0
+	github.com/hashicorp/terraform-exec v0.8.0
 	github.com/hashicorp/terraform-json v0.5.0
-	github.com/kmoe/terraform-exec v0.0.0-20200524214613-177a6c387065
-	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
-	gopkg.in/yaml.v2 v2.2.4
 )

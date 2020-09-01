@@ -10,37 +10,44 @@ IMAGE_NAME := "reulan/clairvoyance"
 
 default: test
 
-help:
-	@echo 'Management commands for clairvoyance:'
-	@echo
-	@echo 'Usage:'
-	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
-	@echo '    make build-alpine    Compile optimized for alpine linux.'
-	@echo '    make package         Build final docker image with just the go binary inside'
-	@echo '    make tag             Tag image created by package with latest, git commit and version'
-	@echo '    make test            Run tests on a compiled project.'
-	@echo '    make push            Push tagged images to registry'
-	@echo '    make clean           Clean the directory tree.'
-	@echo
+# Golang project
+get-deps:
+	dep ensure
 
+clean:
+	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
+	
 build:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
 	go build -ldflags "-X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
 
-get-deps:
-	dep ensure
 
 build-alpine:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
 	go build -ldflags '-w -linkmode external -extldflags "-static" -X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}' -o bin/${BIN_NAME}
 
+
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
 	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
 
+report: build check-env-vars
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance report
+
+
+# Validation
+check-env-vars:
+	@if [ -z "${DISCORD_WEBHOOK_SECRET}" ]; then echo "Missing DISCORD_WEBHOOK_SECRET"; exit 1; fi
+	@if [ -z "${DISCORD_WEBHOOK_NAME}" ]; then echo "Missing DISCORD_WEBHOOK_NAME"; exit 1; fi
+
+test:
+	go test ./...
+
+
+# Docker
 tag: 
 	@echo "Tagging: latest ${VERSION} $(GIT_COMMIT)"
 	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):$(GIT_COMMIT)
@@ -52,10 +59,3 @@ push: tag
 	docker push $(IMAGE_NAME):$(GIT_COMMIT)
 	docker push $(IMAGE_NAME):${VERSION}
 	docker push $(IMAGE_NAME):latest
-
-clean:
-	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
-
-test:
-	go test ./...
-
