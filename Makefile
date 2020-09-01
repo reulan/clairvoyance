@@ -1,4 +1,4 @@
-.PHONY: build build-alpine clean test help default
+.PHONY: deps clean build build-alpine package report check-env-vars test tag push
 
 BIN_NAME=clairvoyance
 
@@ -11,8 +11,10 @@ IMAGE_NAME := "reulan/clairvoyance"
 default: test
 
 # Golang project
-get-deps:
-	dep ensure
+deps:
+	rm go.mod go.sum || true
+	go mod init || true
+	go mod tidy || true
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
@@ -22,12 +24,10 @@ build:
 	@echo "GOPATH=${GOPATH}"
 	go build -ldflags "-X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
 
-
 build-alpine:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
 	go build -ldflags '-w -linkmode external -extldflags "-static" -X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}' -o bin/${BIN_NAME}
-
 
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
