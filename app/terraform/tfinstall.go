@@ -1,23 +1,32 @@
 package terraform
 
 import (
-	"io/ioutil"
-	"os"
-
 	tfinstall "github.com/hashicorp/terraform-exec/tfinstall"
 )
 
-func ConfigureBinary() string {
-	tmpDir, err := ioutil.TempDir("", "tfinstall")
-	if err != nil {
-		panic(err)
-	}
-	defer os.RemoveAll(tmpDir)
+func DetectBinary(installDir string, version string) string {
 
-	execPath, err := tfinstall.Find(tfinstall.LatestVersion(tmpDir, false))
-	if err != nil {
-		panic(err)
+	// If terraform is not detected, install to the installation directory on the user's behalf.
+	if version == "" {
+		tfbinary, err := tfinstall.Find(tfinstall.LatestVersion(installDir, false))
+
+		if err != nil {
+			panic(err)
+		}
+
+		return tfbinary
+
+	} else {
+
+		tfbinary, err := tfinstall.Find(tfinstall.ExactVersion(version, installDir))
+		if err != nil {
+			panic(err)
+		}
+
+		return tfbinary
+
 	}
 
-	return execPath
+	// return nothing if not set
+	return ""
 }

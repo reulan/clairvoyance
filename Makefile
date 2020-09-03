@@ -10,7 +10,8 @@ IMAGE_NAME := "reulan/clairvoyance"
 
 default: test
 
-# Golang project
+
+# Clairvoyance build
 get-deps:
 	dep ensure
 
@@ -33,18 +34,33 @@ package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
 	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
 
-report: build check-env-vars
-	@echo "running ${BIN_NAME} ${VERSION}"
-	./bin/clairvoyance report
-
-
-# Validation
+	
+# Clairvoyance validation
 check-env-vars:
+	@if [ -z "${CLAIRVOYANCE_WORKING_DIR}" ]; then echo "Missing CLAIRVOYANCE_WORKING_DIR"; exit 1; fi
+	@if [ -z "${DISCORD_WEBHOOK_CHANNEL}" ]; then echo "Missing DISCORD_WEBHOOK_CHANNEL"; exit 1; fi
 	@if [ -z "${DISCORD_WEBHOOK_SECRET}" ]; then echo "Missing DISCORD_WEBHOOK_SECRET"; exit 1; fi
-	@if [ -z "${DISCORD_WEBHOOK_NAME}" ]; then echo "Missing DISCORD_WEBHOOK_NAME"; exit 1; fi
 
 test:
 	go test ./...
+
+
+# Clairvoyance runtime
+# this installs terraform version specified by the env var
+tfinstall:
+	@if [ -z "${CLAIRVOYANCE_TERRAFORM_VERSION}" ]; then echo "Missing CLAIRVOYANCE_TERRAFORM_VERSION"; exit 1; fi
+	rm -rf ./tfinstall || true
+	mkdir -p ./tfinstall || true
+	wget https://releases.hashicorp.com/terraform/${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -P ./tfinstall
+	unzip ./tfinstall/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -d ./tfinstall
+	
+report-stdout: build check-env-vars
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance report stdout
+
+report-discord: build check-env-vars
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance report discord
 
 
 # Docker

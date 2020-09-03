@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"clairvoyance/log"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
 	"clairvoyance/app/reporting"
@@ -27,7 +27,7 @@ The following options for additional reporting functionality.
 
 	clairvoyance report --path ~/noobshack --output discord
 	clairvoyance report --command show --path ~/noobshack --output stdout
- */
+*/
 
 var reportCmd = &cobra.Command{
 	Use:   "report",
@@ -43,25 +43,43 @@ var reportCmd = &cobra.Command{
 
 		// configure service - referring to a tfexec config (a single terraform project definition)
 		//TODO: copy files over to the container
-		var workingDir = os.Getenv("GOPATH") + "/src/github.com/kmoe/terraform-exec/testdata"
-		optPath, _ := filepath.Abs(workingDir)
-		service := terraform.ConfigureTerraform(optPath)
-		terraform.Init(service)
 
-		// Bypass optPath as only Show is supported as of now
+		var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
+		var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall"
+		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
+		var terraformVersion string
+
+		if tfVersionSet {
+			terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
+		} else {
+			// should be "" or "latest" - will hardcode to latest version for now
+			terraformVersion = "0.13.2"
+		}
+
+		execPath := terraform.DetectBinary(binaryDir, terraformVersion)
+		optPath, _ := filepath.Abs(workingDir)
+
+		// Invoke Terraform
+		service := terraform.ConfigureTerraform(optPath, execPath)
+		terraform.Init(service)
 		state := terraform.Show(service)
+		log.Printf("[Show]\n%s", state)
+		hasChanges := terraform.Plan(service)
+		log.Printf("[Plan]\n%s", hasChanges)
+
+		// Format Terraform output
 		formattedOutput := reporting.FormatTerraformShow(state)
 
 		// Where is the message going?
 		if optOutput == "discord" {
 			//reporting.SendMessageDiscord(formattedOutput)
-			} else if optOutput == "stdout" {
-				//reporting.SendMessageStdout(formattedOutput)
-				reporting.SendJSONStdout(formattedOutput)
+		} else if optOutput == "stdout" {
+			//reporting.SendMessageStdout(formattedOutput)
+			reporting.SendJSONStdout(formattedOutput)
 		} else {
-				log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
-			}
-		},
+			log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
+		}
+	},
 }
 
 func init() {

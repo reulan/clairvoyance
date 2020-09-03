@@ -16,7 +16,9 @@ In the future I would like to support:
 ## Usage
 ### Setting Environment variables
 The following environment variables will need to be set for `clairvoyance` to run:
-- `DISCORD_WEBHOOK_NAME` (just a string, typically the discord channel name. e.x. `#clairvoyance`)
+- `CLAIRVOYANCE_TERRAFORM_VERSION` (version of Terraform to use, "0.13.0" - TODO: if empty will download and use latest)
+- `CLAIRVOYANCE_WORKING_DIR` (path to terraform service to plan) 
+- `DISCORD_WEBHOOK_CHANNEL` (just a string, typically the discord channel name. e.x. `#clairvoyance`)
 - `DISCORD_WEBHOOK_SECRET`
 
 The Discord secret expects to contain everything after the webhooks route:
@@ -48,10 +50,12 @@ However, test driven development should is the way to go forward for this projec
 ### Build and Run
 Run the binary after it's been packaged:
 ```console
-$ make build
-$ ./bin/clairvoyance
-$ ./bin/clairvoyance
+make build
+make report
 ```
+
+### Update Version
+Modify `version/version.go` and add a major, minor or patch version based off contributions.
 
 ## Additional information
 This repository was bootstrapped with [cookiecutter-golang](https://github.com/lacion/cookiecutter-golang).
