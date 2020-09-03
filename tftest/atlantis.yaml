@@ -3,18 +3,18 @@ automerge: false
 projects:
 - name:
   dir: drift
-  apply_requirements: [approved]
+  apply_requirements: []
   terraform_version: "0.13.2"
   workspace: default
-  workflow: tf12
+  workflow: standard
 - name:
   dir: nochanges
-  apply_requirements: [approved]
+  apply_requirements: []
   terraform_version: "0.12.29"
   workspace: default
-  workflow: tf12
+  workflow: standard
 workflows:
-  tf12:
+  standard:
     plan:
       steps:
       - init
