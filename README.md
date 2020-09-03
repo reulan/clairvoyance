@@ -24,9 +24,10 @@ To reinitialize the modules and recreate the dependency tree the following can b
 
 ### Setting Environment variables
 The following environment variables will need to be set for `clairvoyance` to run:
-- `CLAIRVOYANCE_TERRAFORM_VERSION` (version of Terraform to use, "0.13.2" - TODO: if empty will download and use latest)
+- `CLAIRVOYANCE_ATLANTIS_YAML` (path to `atlantis.yaml`)
+- `CLAIRVOYANCE_TERRAFORM_VERSION` (version of terraform binary to use by default, if not specified)
 - `CLAIRVOYANCE_WORKING_DIR` (path to terraform service to plan) 
-- `DISCORD_WEBHOOK_CHANNEL` (just a string, typically the discord channel name. e.x. `#clairvoyance`)
+- `DISCORD_WEBHOOK_CHANNEL` (discord channel name. e.x. `#clairvoyance`)
 - `DISCORD_WEBHOOK_SECRET`
 
 The Discord secret expects to contain everything after the webhooks route:
