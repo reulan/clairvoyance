@@ -12,8 +12,10 @@ default: test
 
 
 # Clairvoyance build
-get-deps:
-	dep ensure
+deps:
+	rm go.mod go.sum || true
+	go mod init || true
+	go mod tidy || true
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
@@ -40,9 +42,6 @@ check-env-vars:
 	@if [ -z "${CLAIRVOYANCE_WORKING_DIR}" ]; then echo "Missing CLAIRVOYANCE_WORKING_DIR"; exit 1; fi
 	@if [ -z "${DISCORD_WEBHOOK_CHANNEL}" ]; then echo "Missing DISCORD_WEBHOOK_CHANNEL"; exit 1; fi
 	@if [ -z "${DISCORD_WEBHOOK_SECRET}" ]; then echo "Missing DISCORD_WEBHOOK_SECRET"; exit 1; fi
-
-test:
-	go test ./...
 
 
 # Clairvoyance runtime
