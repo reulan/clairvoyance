@@ -6,41 +6,63 @@ VERSION := $(shell grep "const Version " version/version.go | sed -E 's/.*"(.+)"
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE=$(shell date '+%Y-%m-%d-%H:%M:%S')
-IMAGE_NAME := "mpmsimo/clairvoyance"
+IMAGE_NAME := "reulan/clairvoyance"
 
 default: test
 
-help:
-	@echo 'Management commands for clairvoyance:'
-	@echo
-	@echo 'Usage:'
-	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
-	@echo '    make build-alpine    Compile optimized for alpine linux.'
-	@echo '    make package         Build final docker image with just the go binary inside'
-	@echo '    make tag             Tag image created by package with latest, git commit and version'
-	@echo '    make test            Run tests on a compiled project.'
-	@echo '    make push            Push tagged images to registry'
-	@echo '    make clean           Clean the directory tree.'
-	@echo
 
+# Clairvoyance build
+deps:
+	rm go.mod go.sum || true
+	go mod init || true
+	go mod tidy || true
+
+clean:
+	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
+	
 build:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X github.com/mpmsimo/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/mpmsimo/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
+	go build -ldflags "-X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
 
-get-deps:
-	dep ensure
 
 build-alpine:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X github.com/mpmsimo/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/mpmsimo/clairvoyance/version.BuildDate=${BUILD_DATE}' -o bin/${BIN_NAME}
+	go build -ldflags '-w -linkmode external -extldflags "-static" -X github.com/reulan/clairvoyance/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/reulan/clairvoyance/version.BuildDate=${BUILD_DATE}' -o bin/${BIN_NAME}
+
 
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
 	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
 
+	
+# Clairvoyance validation
+check-env-vars:
+	@if [ -z "${CLAIRVOYANCE_WORKING_DIR}" ]; then echo "Missing CLAIRVOYANCE_WORKING_DIR"; exit 1; fi
+	@if [ -z "${DISCORD_WEBHOOK_CHANNEL}" ]; then echo "Missing DISCORD_WEBHOOK_CHANNEL"; exit 1; fi
+	@if [ -z "${DISCORD_WEBHOOK_SECRET}" ]; then echo "Missing DISCORD_WEBHOOK_SECRET"; exit 1; fi
+
+
+# Clairvoyance runtime
+# this installs terraform version specified by the env var
+tfinstall:
+	@if [ -z "${CLAIRVOYANCE_TERRAFORM_VERSION}" ]; then echo "Missing CLAIRVOYANCE_TERRAFORM_VERSION"; exit 1; fi
+	rm -rf ./tfinstall || true
+	mkdir -p ./tfinstall || true
+	wget https://releases.hashicorp.com/terraform/${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -P ./tfinstall
+	unzip ./tfinstall/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -d ./tfinstall
+	
+report-stdout: build check-env-vars
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance report stdout
+
+report-discord: build check-env-vars
+	@echo "running ${BIN_NAME} ${VERSION}"
+	./bin/clairvoyance report discord
+
+
+# Docker
 tag: 
 	@echo "Tagging: latest ${VERSION} $(GIT_COMMIT)"
 	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):$(GIT_COMMIT)
@@ -52,10 +74,3 @@ push: tag
 	docker push $(IMAGE_NAME):$(GIT_COMMIT)
 	docker push $(IMAGE_NAME):${VERSION}
 	docker push $(IMAGE_NAME):latest
-
-clean:
-	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
-
-test:
-	go test ./...
-

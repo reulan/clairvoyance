@@ -2,22 +2,17 @@ package terraform
 
 import (
 	"context"
+
+	tfexec "github.com/hashicorp/terraform-exec/tfexec"
 	tfjson "github.com/hashicorp/terraform-json"
-	"github.com/kmoe/terraform-exec/tfexec"
 
 	"clairvoyance/log"
 )
 
 var TerraformContext = context.Background()
 
-func ConfigureTerraform(workingDir string) *tfexec.Terraform {
-	// Generate a new tfexec Terraform configuration
-	execPath, err := tfexec.FindTerraform()
-	if err != nil {
-		log.Errorf("cli/ConfigureTerraform - %s", err)
-	}
-
-	service, err := tfexec.NewTerraform(execPath, workingDir)
+func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
+	service, err := tfexec.NewTerraform(workingDir, execPath)
 	if err != nil {
 		log.Errorf("cli/ConfigureTerraform - %s", err)
 	}
@@ -27,8 +22,8 @@ func ConfigureTerraform(workingDir string) *tfexec.Terraform {
 	return service
 }
 
+// Run `terraform init` so that the working directories context can be initialized.
 func Init(service *tfexec.Terraform) {
-	// Run `terraform init` so that the working directories context can be initialized.
 	log.Info("cli/Init - terraform init")
 
 	err := service.Init(TerraformContext)
@@ -37,8 +32,8 @@ func Init(service *tfexec.Terraform) {
 	}
 }
 
+// Run `terraform show` against the state defined in the working directory.
 func Show(service *tfexec.Terraform) *tfjson.State {
-	// Run `terraform show` against the state defined in the working directory.
 	log.Info("cli/Show - terraform show")
 
 	state, err := service.Show(TerraformContext)
@@ -47,4 +42,18 @@ func Show(service *tfexec.Terraform) *tfjson.State {
 	}
 
 	return state
+}
+
+// Run `terraform plan` against the state defined in the working directory.
+// 0 = false (no changes)
+// 2 = true  (drift)
+func Plan(service *tfexec.Terraform) bool {
+	log.Info("cli/Plan - terraform plan")
+
+	hasChanges, err := service.Plan(TerraformContext)
+	if err != nil {
+		log.Errorf("cli/Plan - %s", err)
+	}
+
+	return hasChanges
 }
