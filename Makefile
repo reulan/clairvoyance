@@ -8,6 +8,8 @@ GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE=$(shell date '+%Y-%m-%d-%H:%M:%S')
 IMAGE_NAME := "reulan/clairvoyance"
 
+TFINSTALL_DIR="./tfinstall/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}"
+
 default: test
 
 
@@ -49,9 +51,9 @@ check-env-vars:
 tfinstall:
 	@if [ -z "${CLAIRVOYANCE_TERRAFORM_VERSION}" ]; then echo "Missing CLAIRVOYANCE_TERRAFORM_VERSION"; exit 1; fi
 	rm -rf ./tfinstall || true
-	mkdir -p ./tfinstall || true
-	wget https://releases.hashicorp.com/terraform/${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -P ./tfinstall
-	unzip ./tfinstall/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -d ./tfinstall
+	mkdir -p $(TFINSTALL_DIR) || true
+	wget https://releases.hashicorp.com/terraform/${CLAIRVOYANCE_TERRAFORM_VERSION}/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -P $(TFINSTALL_DIR)
+	unzip $(TFINSTALL_DIR)/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}_linux_amd64.zip -d $(TFINSTALL_DIR)
 	
 report-stdout: build check-env-vars
 	@echo "running ${BIN_NAME} ${VERSION}"

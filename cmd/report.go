@@ -45,7 +45,7 @@ var reportCmd = &cobra.Command{
 		//TODO: copy files over to the container
 
 		var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-		var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall"
+		var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
 		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		var terraformVersion string
 
