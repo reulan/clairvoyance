@@ -22,8 +22,15 @@ func FormatTerraformShow(state *tfjson.State) []byte {
 	if err != nil {
 		log.Errorf("reporting/formatting - %s", err)
 	}
-
 	log.Printf("[FormatTerraformShow] Formatted message:\n%s", output)
-
 	return output
+}
+
+func FormatTerraformResource(resource *tfjson.StateResource) []byte {
+	formattedResource, err := json.MarshalIndent(resource, "", "\t")
+	if err != nil {
+		log.Errorf("reporting/formatting - %s", err)
+	}
+	//log.Printf("[FormatTerraformResource] Formatted message:\n%s", formattedResource)
+	return formattedResource
 }
