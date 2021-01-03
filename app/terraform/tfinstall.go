@@ -1,5 +1,7 @@
 package terraform
 
+/*
+
 import (
 	tfinstall "github.com/hashicorp/terraform-exec/tfinstall"
 )
@@ -30,3 +32,4 @@ func DetectBinary(installDir string, version string) string {
 	// return nothing if not set
 	return ""
 }
+*/
