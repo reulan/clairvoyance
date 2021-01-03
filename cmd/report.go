@@ -8,7 +8,7 @@ import (
 	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
-	"clairvoyance/app/reporting"
+	//"clairvoyance/app/reporting"
 	"clairvoyance/app/terraform"
 )
 
@@ -45,9 +45,12 @@ var reportCmd = &cobra.Command{
 		//TODO: copy files over to the container
 
 		var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-		var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
+		var execPath = "/usr/bin/terraform"
+		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
 		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
+
 		var terraformVersion string
+		_ = terraformVersion
 
 		if tfVersionSet {
 			terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
@@ -56,26 +59,26 @@ var reportCmd = &cobra.Command{
 			terraformVersion = "0.13.2"
 		}
 
-		execPath := terraform.DetectBinary(binaryDir, terraformVersion)
+		//execPath := terraform.DetectBinary(binaryDir, terraformVersion)
 		optPath, _ := filepath.Abs(workingDir)
 
-		// Invoke Terraform
+		// Setup Terraform project
 		service := terraform.ConfigureTerraform(optPath, execPath)
 		terraform.Init(service)
 		state := terraform.Show(service)
-		log.Printf("[Show]\n%s", state)
-		hasChanges := terraform.Plan(service)
-		log.Printf("[Plan]\n%s", hasChanges)
+		var isPlanned bool = terraform.Plan(service)
+		terraform.DriftDetection(isPlanned, state)
 
 		// Format Terraform output
-		formattedOutput := reporting.FormatTerraformShow(state)
+		//formattedOutput := reporting.FormatTerraformShow(state)
 
 		// Where is the message going?
 		if optOutput == "discord" {
 			//reporting.SendMessageDiscord(formattedOutput)
 		} else if optOutput == "stdout" {
 			//reporting.SendMessageStdout(formattedOutput)
-			reporting.SendJSONStdout(formattedOutput)
+			//reporting.SendJSONStdout(formattedOutput)
+			terraform.DriftDetection(isPlanned, state)
 		} else {
 			log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
 		}

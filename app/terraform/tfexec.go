@@ -12,35 +12,30 @@ import (
 var TerraformContext = context.Background()
 
 func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
+	execPath = "/usr/bin/terraform"
 	service, err := tfexec.NewTerraform(workingDir, execPath)
 	if err != nil {
-		log.Errorf("cli/ConfigureTerraform - %s", err)
+		panic(err)
 	}
-
-	log.Info("cli/ConfigureTerraform - Created tfexec configuration.")
-
+	log.Printf("[cli/tfexec/ConfigureTerraform] Created tfexec configuration for project: %s.", workingDir)
 	return service
 }
 
 // Run `terraform init` so that the working directories context can be initialized.
 func Init(service *tfexec.Terraform) {
-	log.Info("cli/Init - terraform init")
-
 	err := service.Init(TerraformContext)
 	if err != nil {
-		log.Errorf("cli/Init - %s", err)
+		panic(err)
 	}
+	log.Info("[cli/tfexec/Init] Initialized Terraform project.")
 }
 
 // Run `terraform show` against the state defined in the working directory.
 func Show(service *tfexec.Terraform) *tfjson.State {
-	log.Info("cli/Show - terraform show")
-
 	state, err := service.Show(TerraformContext)
 	if err != nil {
-		log.Errorf("cli/Show - %s", err)
+		panic(err)
 	}
-
 	return state
 }
 
@@ -49,11 +44,9 @@ func Show(service *tfexec.Terraform) *tfjson.State {
 // 2 = true  (drift)
 func Plan(service *tfexec.Terraform) bool {
 	log.Info("cli/Plan - terraform plan")
-
-	hasChanges, err := service.Plan(TerraformContext)
+	isPlanned, err := service.Plan(TerraformContext)
 	if err != nil {
-		log.Errorf("cli/Plan - %s", err)
+		panic(err)
 	}
-
-	return hasChanges
+	return isPlanned
 }
