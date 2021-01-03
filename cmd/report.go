@@ -8,7 +8,7 @@ import (
 	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
-	//"clairvoyance/app/reporting"
+	"clairvoyance/app/reporting"
 	"clairvoyance/app/terraform"
 )
 
@@ -66,19 +66,34 @@ var reportCmd = &cobra.Command{
 		service := terraform.ConfigureTerraform(optPath, execPath)
 		terraform.Init(service)
 		state := terraform.Show(service)
-		var isPlanned bool = terraform.Plan(service)
-		terraform.DriftDetection(isPlanned, state)
 
 		// Format Terraform output
 		//formattedOutput := reporting.FormatTerraformShow(state)
+		//fmt.Println(formattedOutput)
+
+		// TODO: tf plan (with -out=out.tfplan)
+		planOptions := fmt.Sprintf("-out=%s/out.tfplan", workingDir)
+		var po []string = []string{planOptions}
+		fmt.Println(po)
+
+		var isPlanned bool = terraform.Plan(service)
+		planPath := fmt.Sprintf("%s/out.tfplan", workingDir)
+
+		var rawPlan = terraform.ShowPlanFileRaw(service, planPath)
+		//log.Printf("rawPlan: %s", rawPlan)
+		planString := terraform.ResourceModificationCount(rawPlan)
+		modifiedResourceCount := terraform.ParseModificationCount(planString)
+		summary := terraform.DriftDetection(isPlanned, state)
+		projectName := workingDir
+		message := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
+		//terraform.ResourceAddressList(state)
 
 		// Where is the message going?
 		if optOutput == "discord" {
-			//reporting.SendMessageDiscord(formattedOutput)
+			log.Println("Outputting to Discord.")
+			reporting.SendMessageDiscord(message)
 		} else if optOutput == "stdout" {
-			//reporting.SendMessageStdout(formattedOutput)
-			//reporting.SendJSONStdout(formattedOutput)
-			terraform.DriftDetection(isPlanned, state)
+			log.Println("Outputting to Stdout.")
 		} else {
 			log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
 		}
