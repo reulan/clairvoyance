@@ -43,8 +43,8 @@ var reportCmd = &cobra.Command{
 
 		// Get version of Terraform binary to use
 		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
-		var tfBinary = "/usr/bin/terraform"
 		//tfBinary := terraform.DetectBinary(binaryDir, terraformVersion)
+		var tfBinary = "/usr/bin/terraform"
 
 		// Setup Terraform Version to use
 		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
@@ -62,26 +62,26 @@ var reportCmd = &cobra.Command{
 		// Point to directory container directories to plan
 		//var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
 
-		// for each dir in CLAIRVOYANCE_WORKING_DIR with *.tf, add dir to list
-		var projects []string
-		//projects := terraform.PopulateProjectList(workingDir)
-
 		/*
-			//terraformDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-			terraformDir = "/home/reulan/noobshack/infrastructure/deploy"
+			// for each dir in CLAIRVOYANCE_WORKING_DIR with *.tf, add dir to list
+			//var projects []string
+			//projects := terraform.PopulateProjectList(workingDir)
 
-			projectFileInfo, err := ioutil.ReadDir(terraformDir)
-			if err != nil {
-				log.Fatal(err)
-			}
+				//terraformDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
+				terraformDir = "/home/reulan/noobshack/infrastructure/deploy"
 
-				for _, project := range projectFileInfo {
-					var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
-					projects = append(projects, absServicePath)
+				projectFileInfo, err := ioutil.ReadDir(terraformDir)
+				if err != nil {
+					log.Fatal(err)
 				}
+
+					for _, project := range projectFileInfo {
+						var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
+						projects = append(projects, absServicePath)
+					}
 		*/
 
-		projects = []string{
+		var projects = []string{
 			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/gameservers/csgo",
 			"/home/reulan/noobshack/gameservers/minecraft",
@@ -121,11 +121,10 @@ var reportCmd = &cobra.Command{
 		}
 
 		terraform.CreateTableStdout(terraformServices)
-		//terraform.ResourceAddressList(state)
 
 		// Where is the message going?
 		if optOutput == "discord" {
-			//log.Println("Outputting to Discord.")
+			log.Println("Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
 		} else if optOutput == "stdout" {
 			//log.Println("Outputting to Stdout.")
