@@ -3,6 +3,7 @@ package terraform
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 
@@ -28,6 +29,16 @@ func GetStateFile(tfProjectPath string) string {
 	var statefile string = tfProjectPath + "/.terraform/terraform.tfstate"
 	log.Printf("[GetStateFile] %s", statefile)
 	return statefile
+}
+
+func GetProjectName(projectName string) (string, string) {
+	paths := []string{projectName}
+
+	for _, p := range paths {
+		dir, file := filepath.Split(p)
+		return dir, file
+	}
+	return "", ""
 }
 
 func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[string]int, summary string) *TerraformService {

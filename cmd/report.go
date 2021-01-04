@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	//"io/ioutil"
 	"os"
-	"path/filepath"
+	//"path/filepath"
 
 	"clairvoyance/log"
 	"github.com/spf13/cobra"
@@ -37,18 +38,16 @@ var reportCmd = &cobra.Command{
 		clairvoyance report`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		//optCommand, _ := cmd.Flags().GetString("command")
-		//optPath, _ := cmd.Flags().GetString("path")
+		// Figure out where to send data
 		optOutput, _ := cmd.Flags().GetString("output")
 
-		// configure service - referring to a tfexec config (a single terraform project definition)
-		//TODO: copy files over to the container
-
-		var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-		var execPath = "/usr/bin/terraform"
+		// Get version of Terraform binary to use
 		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
-		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
+		var tfBinary = "/usr/bin/terraform"
+		//tfBinary := terraform.DetectBinary(binaryDir, terraformVersion)
 
+		// Setup Terraform Version to use
+		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		var terraformVersion string
 		_ = terraformVersion
 
@@ -56,38 +55,72 @@ var reportCmd = &cobra.Command{
 			terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		} else {
 			// should be "" or "latest" - will hardcode to latest version for now
-			terraformVersion = "0.13.2"
+			terraformVersion = "0.14.3"
 		}
 
-		//execPath := terraform.DetectBinary(binaryDir, terraformVersion)
-		optPath, _ := filepath.Abs(workingDir)
+		// Setup projects to plan
+		// Point to directory container directories to plan
+		//var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
 
-		// Setup Terraform project
-		service := terraform.ConfigureTerraform(optPath, execPath)
-		terraform.Init(service)
-		state := terraform.Show(service)
+		// for each dir in CLAIRVOYANCE_WORKING_DIR with *.tf, add dir to list
+		var projects []string
+		//projects := terraform.PopulateProjectList(workingDir)
 
-		// Format Terraform output
-		//formattedOutput := reporting.FormatTerraformShow(state)
-		//fmt.Println(formattedOutput)
+		/*
+			//terraformDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
+			terraformDir = "/home/reulan/noobshack/infrastructure/deploy"
 
-		// TODO: tf plan (with -out=out.tfplan)
-		planOptions := fmt.Sprintf("-out=%s/out.tfplan", workingDir)
-		var po []string = []string{planOptions}
-		fmt.Println(po)
+			projectFileInfo, err := ioutil.ReadDir(terraformDir)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		var isPlanned bool = terraform.Plan(service)
-		planPath := fmt.Sprintf("%s/out.tfplan", workingDir)
+				for _, project := range projectFileInfo {
+					var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
+					projects = append(projects, absServicePath)
+				}
+		*/
 
-		var rawPlan = terraform.ShowPlanFileRaw(service, planPath)
-		//log.Printf("rawPlan: %s", rawPlan)
-		planString := terraform.ResourceModificationCount(rawPlan)
-		modifiedResourceCount := terraform.ParseModificationCount(planString)
-		summary := terraform.DriftDetection(isPlanned, state)
-		projectName := workingDir
-		tfService := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
-		terraform.CreateTable(tfService)
-		terraform.CreateTableStdout(tfService)
+		projects = []string{
+			"/home/reulan/noobshack/gameservers/rust",
+			"/home/reulan/noobshack/gameservers/csgo",
+			"/home/reulan/noobshack/gameservers/minecraft",
+			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+		}
+
+		var terraformServices []*terraform.TerraformService
+
+		for _, absProjectPath := range projects {
+			//absProjectPath, _ := filepath.Abs(absProjectPath)
+
+			// terraform init
+			service := terraform.ConfigureTerraform(absProjectPath, tfBinary)
+			terraform.Init(service)
+
+			// terraform show
+			state := terraform.Show(service)
+
+			// terraform plan
+			// TODO: tf plan (with -out=out.tfplan)
+			planOptions := fmt.Sprintf("-out=%s/out.tfplan", absProjectPath)
+			var po []string = []string{planOptions}
+			fmt.Println(po)
+			var isPlanned bool = terraform.Plan(service)
+			planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
+			var rawPlan = terraform.ShowPlanFileRaw(service, planPath)
+			//log.Printf("rawPlan: %s", rawPlan)
+			planString := terraform.ResourceModificationCount(rawPlan)
+			modifiedResourceCount := terraform.ParseModificationCount(planString)
+			summary := terraform.DriftDetection(isPlanned, state)
+
+			_, projectName := terraform.GetProjectName(absProjectPath)
+			tfService := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
+
+			terraformServices = append(terraformServices, tfService)
+		}
+
+		terraform.CreateTableStdout(terraformServices)
 		//terraform.ResourceAddressList(state)
 
 		// Where is the message going?
