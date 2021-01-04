@@ -1,40 +1,39 @@
-# Build Stage
-FROM lacion/alpine-golang-buildimage:1.13 AS build-stage
+FROM golang:alpine3.12 as clairvoyance_build
 
-LABEL app="build-clairvoyance"
+RUN apk add --no-cache git
+
+# Download and install pre-reqs for clairvoyance
+WORKDIR /clairvoyance-build
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+# Copy code + build application
+# (tftest is optional)
+COPY app/ app/
+COPY cmd/ cmd/
+COPY config/ config/
+COPY log/ log/
+COPY version/ version/
+COPY main.go .
+RUN go build -o ./bin/clairvoyance .
+
+# Use only alpine this time around
+FROM alpine:3.12
 LABEL REPO="https://github.com/reulan/clairvoyance"
+LABEL maintainer="mpmsimo@gmail.com"
 
-ENV PROJPATH=/go/src/github.com/reulan/clairvoyance
+RUN apk add ca-certificates
+RUN apk add terraform
 
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
-
-ADD . /go/src/github.com/reulan/clairvoyance
-WORKDIR /go/src/github.com/reulan/clairvoyance
-
-RUN make build-alpine
-
-# Final Stage
-FROM lacion/alpine-base-image:latest
-
-ARG GIT_COMMIT
-ARG VERSION
-LABEL REPO="https://github.com/reulan/clairvoyance"
-LABEL GIT_COMMIT=$GIT_COMMIT
-LABEL VERSION=$VERSION
-
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:/opt/clairvoyance/bin
-
-WORKDIR /opt/clairvoyance/bin
-
-COPY --from=build-stage /go/src/github.com/reulan/clairvoyance/bin/clairvoyance /opt/clairvoyance/bin/
-RUN chmod +x /opt/clairvoyance/bin/clairvoyance
-
-# Create appuser
+# Create and use the clairvoyance user
 RUN adduser -D -g '' clairvoyance
 USER clairvoyance
+WORKDIR /app
+COPY --chown=clairvoyance:clairvoyance --from=clairvoyance_build /clairvoyance-build/bin/clairvoyance .
+COPY --chown=clairvoyance:clairvoyance tftest/ /app/tftest/
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
-CMD ["/opt/clairvoyance/bin/clairvoyance"]
+# Run the API
+#use this env var${CLAIRVOYANCE_WORKING_DIR}
+WORKDIR /app/tftest/drift
+CMD ["/app/clairvoyance", "report", "discord"]

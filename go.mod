@@ -6,6 +6,8 @@ require (
 	github.com/hashicorp/terraform-exec v0.12.0
 	github.com/hashicorp/terraform-json v0.8.0
 	github.com/hpcloud/tail v1.0.0
+	github.com/kyokomi/emoji/v2 v2.2.8
+	github.com/rodaine/table v1.0.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1

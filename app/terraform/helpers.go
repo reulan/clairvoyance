@@ -1,10 +1,9 @@
 package terraform
 
 import (
-	"encoding/json"
-	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 
@@ -32,8 +31,17 @@ func GetStateFile(tfProjectPath string) string {
 	return statefile
 }
 
-//func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[string]int, summary string) *TerraformService {
-func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[string]int, summary string) string {
+func GetProjectName(projectName string) (string, string) {
+	paths := []string{projectName}
+
+	for _, p := range paths {
+		dir, file := filepath.Split(p)
+		return dir, file
+	}
+	return "", ""
+}
+
+func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[string]int, summary string) *TerraformService {
 	tfs := &TerraformService{
 		//State:            state,
 		ProjectName:      projectName,
@@ -44,11 +52,8 @@ func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[
 		Summary:          summary,
 	}
 
-	tfsb, _ := json.Marshal(tfs)
-	var message string = fmt.Sprintf("```%s```", tfsb)
 	log.Printf("[ExtractDriftReportData] TerraformService struct is:\n%+v", tfs)
-
-	return message
+	return tfs
 }
 
 // true == diff || false == No changes.

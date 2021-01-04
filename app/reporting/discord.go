@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	//"clairvoyance/app/terraform"
 	"clairvoyance/log"
 )
 
@@ -20,6 +21,15 @@ var (
 	DiscordWebhookURL    string = "https://discordapp.com/api/webhooks/" + DiscordWebhookSecret
 	ContentType          string = "application/json"
 )
+
+/*
+func TerraformServiceToString(tfsb *terraform.TerraformService) string {
+	var tfs = &terraform.TerraformService
+	tfsb, _ := json.Marshal(tfs)
+	var message string = fmt.Sprintf("```%s```", tfsb)
+	return message
+}
+*/
 
 func SendMessageDiscord(message string) {
 	// Populate the JSON payload and Marshall data for request
