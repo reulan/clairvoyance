@@ -1,6 +1,8 @@
 # clairvoyance
 Drift detection and reporting for Terraform.
 
+THIS TOOL IS A WORK IN PROGRESS AND MAY NOT WORK AS DESCRIBED BELOW
+
 ## Overview
 Currently, the `clairvoyance` software does the following:
 - Allows running of Terraform commands for specified working directory.
