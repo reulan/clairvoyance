@@ -8,7 +8,7 @@ import (
 	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
-	"clairvoyance/app/reporting"
+	//"clairvoyance/app/reporting"
 	"clairvoyance/app/terraform"
 )
 
@@ -85,15 +85,17 @@ var reportCmd = &cobra.Command{
 		modifiedResourceCount := terraform.ParseModificationCount(planString)
 		summary := terraform.DriftDetection(isPlanned, state)
 		projectName := workingDir
-		message := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
+		tfService := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
+		terraform.CreateTable(tfService)
+		terraform.CreateTableStdout(tfService)
 		//terraform.ResourceAddressList(state)
 
 		// Where is the message going?
 		if optOutput == "discord" {
-			log.Println("Outputting to Discord.")
-			reporting.SendMessageDiscord(message)
+			//log.Println("Outputting to Discord.")
+			//reporting.SendMessageDiscord(message)
 		} else if optOutput == "stdout" {
-			log.Println("Outputting to Stdout.")
+			//log.Println("Outputting to Stdout.")
 		} else {
 			log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
 		}

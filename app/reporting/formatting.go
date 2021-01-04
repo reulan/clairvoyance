@@ -9,6 +9,7 @@ import (
 	"clairvoyance/log"
 )
 
+// eventually have stdout template and discord template
 func FormatDriftReport(message string) string {
 	var title string = "Terraform Drift Detection Report"
 	var formattedMessage string = fmt.Sprintf("%s\n```\n%s\n```", title, message)
