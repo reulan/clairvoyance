@@ -24,7 +24,7 @@ Ensure Golang is installed and configured.
 ### Setting Environment variables
 The following environment variables will need to be set for `clairvoyance` to run:
 - `CLAIRVOYANCE_TERRAFORM_VERSION` (version of Terraform to use)
-- `CLAIRVOYANCE_WORKING_DIR` (path to terraform service to plan)  // where directories containing .*tf files will be cloned
+- `CLAIRVOYANCE_PROJECT_DIR` (path to terraform service to plan)  // where directories containing .*tf files will be cloned
 - `DISCORD_WEBHOOK_CHANNEL` (just a string, typically the discord channel name. e.x. `#clairvoyance`)
 - `DISCORD_WEBHOOK_SECRET`
 

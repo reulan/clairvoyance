@@ -60,37 +60,17 @@ var reportCmd = &cobra.Command{
 		}
 
 		// Setup projects to plan
-		// Point to directory container directories to plan
-		//var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-
-		/*
-			// for each dir in CLAIRVOYANCE_WORKING_DIR with *.tf, add dir to list
-			//var projects []string
-			//projects := terraform.PopulateProjectList(workingDir)
-
-				//terraformDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-				terraformDir = "/home/reulan/noobshack/infrastructure/deploy"
-
-				projectFileInfo, err := ioutil.ReadDir(terraformDir)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-					for _, project := range projectFileInfo {
-						var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
-						projects = append(projects, absServicePath)
-					}
-
-		*/
+		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+		//clairvoyanceProjectDir = "/home/reulan/noobshack/infrastructure/deploy"
 
 		var projects = []string{
 			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/gameservers/csgo",
-			"/home/reulan/noobshack/gameservers/minecraft",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
-			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
-			"/home/reulan/noobshack/infrastructure/deploy/gaze",
-			"/home/reulan/noobshack/infrastructure/deploy/polarity",
+			//"/home/reulan/noobshack/gameservers/minecraft",
+			//"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+			//"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+			//"/home/reulan/noobshack/infrastructure/deploy/gaze",
+			//"/home/reulan/noobshack/infrastructure/deploy/polarity",
 		}
 
 		/* Terraform Drift Report */

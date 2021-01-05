@@ -30,7 +30,6 @@ func DetectServices(path string) []string {
 		log.Errorf("Failed to open directory: %s", dir)
 	}
 
-
 	includesHCL := terraform.IdentifyHCL(path)
 	if includesHCL {
 		//services = path

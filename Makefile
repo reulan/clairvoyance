@@ -12,7 +12,7 @@ TFINSTALL_DIR="./tfinstall/terraform_${CLAIRVOYANCE_TERRAFORM_VERSION}"
 
 # Clairvoyance validation
 check-env-vars:
-	@if [ -z "${CLAIRVOYANCE_WORKING_DIR}" ]; then echo "Missing CLAIRVOYANCE_WORKING_DIR"; exit 1; fi
+	@if [ -z "${CLAIRVOYANCE_PROJECT_DIR}" ]; then echo "Missing CLAIRVOYANCE_PROJECT_DIR"; exit 1; fi
 	@if [ -z "${DISCORD_WEBHOOK_CHANNEL}" ]; then echo "Missing DISCORD_WEBHOOK_CHANNEL"; exit 1; fi
 	@if [ -z "${DISCORD_WEBHOOK_SECRET}" ]; then echo "Missing DISCORD_WEBHOOK_SECRET"; exit 1; fi
 	
@@ -63,11 +63,11 @@ report-discord: build check-env-vars
 test: build
 	docker run --rm -it \
 		-e CLAIRVOYANCE_TERRAFORM_VERSION=${CLAIRVOYANCE_TERRAFORM_VERSION} \
-		-e CLAIRVOYANCE_WORKING_DIR="/app/tftest/drift" \
+		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest/drift" \
 		$(IMAGE):$(GIT_SHORT)
 
 shell: build
 	docker run --rm -it \
 		-e CLAIRVOYANCE_TERRAFORM_VERSION=${CLAIRVOYANCE_TERRAFORM_VERSION} \
-		-e CLAIRVOYANCE_WORKING_DIR="/app/tftest/drift" \
+		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest/drift" \
 		$(IMAGE):$(GIT_SHORT) ash
