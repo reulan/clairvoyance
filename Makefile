@@ -43,12 +43,12 @@ build:
 	docker tag $(IMAGE):$(GIT_SHORT) $(IMAGE):${VERSION}
 	@echo "built Docker image: $(IMAGE):$(GIT_SHORT)/${VERSION}"
 	
+# TODO: configure this for public DockerHub instead of private GCR.
 push: build
 	@echo "Uploading image ${IMAGE}:$(GIT_SHORT)/${VERSION} to GCR."
 	docker push $(IMAGE):latest
 	docker push $(IMAGE):${VERSION}
 	docker push $(IMAGE):$(GIT_SHORT)
-
 
 # Clairvoyance runtime
 report-stdout: build check-env-vars

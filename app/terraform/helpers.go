@@ -31,6 +31,7 @@ func GetStateFile(tfProjectPath string) string {
 	return statefile
 }
 
+//Split absolute path into root + directory
 func GetProjectName(projectName string) (string, string) {
 	paths := []string{projectName}
 
@@ -39,37 +40,6 @@ func GetProjectName(projectName string) (string, string) {
 		return dir, file
 	}
 	return "", ""
-}
-
-func ExtractDriftReportData(state *tfjson.State, projectName string, counts map[string]int, summary string) *TerraformService {
-	tfs := &TerraformService{
-		//State:            state,
-		ProjectName:      projectName,
-		TerraformVersion: state.TerraformVersion,
-		CountAdd:         counts["CountAdd"],
-		CountChange:      counts["CountChange"],
-		CountDestroy:     counts["CountDestroy"],
-		Summary:          summary,
-	}
-
-	log.Printf("[ExtractDriftReportData] TerraformService struct is:\n%+v", tfs)
-	return tfs
-}
-
-// true == diff || false == No changes.
-func DriftDetection(exitStatus bool, state *tfjson.State) string {
-	var message string
-	if exitStatus {
-		message = "Drift detected for Plan."
-		log.Printf("[DriftDetection] %s", message)
-	} else if !exitStatus {
-		message = "No changes."
-		log.Printf("[DriftDetection] %s", message)
-	} else {
-		message = "Error planning Terraform project."
-		log.Printf("[DriftDetection] %s", message)
-	}
-	return message
 }
 
 // For each Terraform resource print the address
@@ -83,56 +53,4 @@ func ResourceAddressList(state *tfjson.State) {
 		resourceValues := reporting.FormatTerraformResource(resources[i])
 		resourceMap[res.Address] = resourceValues
 	}
-}
-
-func ResourceModificationCount(planFileRawString string) string {
-	var filename string = "/tmp/clairvoyance-tmp"
-	file, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	} else {
-		file.WriteString(planFileRawString)
-		log.Printf("Wrote %s as staging for tfplan conversion.", filename)
-	}
-	file.Close()
-
-	t, err := tail.TailFile(filename, tail.Config{Follow: true})
-	for line := range t.Lines {
-		matched, err := regexp.MatchString("\\bPlan\\b", line.Text)
-		if err != nil {
-			panic(err)
-		} else if matched {
-			return line.Text
-		}
-	}
-
-	//TODO: fix me potential infinite loop
-	return ""
-}
-
-func ParseModificationCount(resourceModificationString string) map[string]int {
-	var resourceModification map[string]int
-	resourceModification = make(map[string]int)
-
-	re := regexp.MustCompile("[0-9]+")
-	var counts []string = re.FindAllString(resourceModificationString, -1)
-
-	countAdd, err := strconv.Atoi(counts[0])
-	if err != nil {
-		panic(err)
-	}
-	countChange, err := strconv.Atoi(counts[1])
-	if err != nil {
-		panic(err)
-	}
-	countDestroy, err := strconv.Atoi(counts[2])
-	if err != nil {
-		panic(err)
-	}
-
-	resourceModification["CountAdd"] = countAdd
-	resourceModification["CountChange"] = countChange
-	resourceModification["CountDestroy"] = countDestroy
-
-	return resourceModification
 }
