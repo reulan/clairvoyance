@@ -2,14 +2,16 @@ package cmd
 
 import (
 	"fmt"
-	//"io/ioutil"
 	"os"
+	"time"
+	//"io/ioutil"
 	//"path/filepath"
 
 	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
 	//"clairvoyance/app/reporting"
+	//"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
 )
 
@@ -59,68 +61,46 @@ var reportCmd = &cobra.Command{
 		}
 
 		// Setup projects to plan
-		// Point to directory container directories to plan
-		//var workingDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
+		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
 		/*
-			// for each dir in CLAIRVOYANCE_WORKING_DIR with *.tf, add dir to list
-			//var projects []string
-			//projects := terraform.PopulateProjectList(workingDir)
-
-				//terraformDir = os.Getenv("CLAIRVOYANCE_WORKING_DIR")
-				terraformDir = "/home/reulan/noobshack/infrastructure/deploy"
-
-				projectFileInfo, err := ioutil.ReadDir(terraformDir)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-					for _, project := range projectFileInfo {
-						var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
-						projects = append(projects, absServicePath)
-					}
+			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
+			if err != nil {
+				panic(err)
+			}
 		*/
 
 		var projects = []string{
-			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/gameservers/csgo",
 			"/home/reulan/noobshack/gameservers/minecraft",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+			"/home/reulan/noobshack/infrastructure/deploy/gaze",
+			"/home/reulan/noobshack/infrastructure/deploy/polarity",
+			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/reulan/ingress-controller",
 		}
 
+		/* Terraform Drift Report */
+		driftDetectTime := time.Now()
 		var terraformServices []*terraform.TerraformService
 
+		tfChan := make(chan *terraform.TerraformService)
+
 		for _, absProjectPath := range projects {
-			//absProjectPath, _ := filepath.Abs(absProjectPath)
+			//var cvProject string = (clarivoyanceProjectDir + "/" + absProjectPath)
+			//fmt.Printf("Project to Drift Report: %s\n", cvProject)
+			//go terraform.GetProjectDrift(tfChan, cvProject, tfBinary)
+			go terraform.GetProjectDrift(tfChan, absProjectPath, tfBinary)
+		}
 
-			// terraform init
-			service := terraform.ConfigureTerraform(absProjectPath, tfBinary)
-			terraform.Init(service)
-
-			// terraform show
-			state := terraform.Show(service)
-
-			// terraform plan
-			// TODO: tf plan (with -out=out.tfplan)
-			planOptions := fmt.Sprintf("-out=%s/out.tfplan", absProjectPath)
-			var po []string = []string{planOptions}
-			fmt.Println(po)
-			var isPlanned bool = terraform.Plan(service)
-			planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
-			var rawPlan = terraform.ShowPlanFileRaw(service, planPath)
-			//log.Printf("rawPlan: %s", rawPlan)
-			planString := terraform.ResourceModificationCount(rawPlan)
-			modifiedResourceCount := terraform.ParseModificationCount(planString)
-			summary := terraform.DriftDetection(isPlanned, state)
-
-			_, projectName := terraform.GetProjectName(absProjectPath)
-			tfService := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
-
-			terraformServices = append(terraformServices, tfService)
+		for _, _ = range projects {
+			terraformServices = append(terraformServices, <-tfChan)
 		}
 
 		terraform.CreateTableStdout(terraformServices)
+		fmt.Println("")
+		fmt.Printf("Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
 		if optOutput == "discord" {

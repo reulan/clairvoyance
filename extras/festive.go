@@ -1,28 +1,30 @@
 package extras
 
 import (
-	//"fmt"
-	//"log"
 	"math/rand"
+	"strings"
 	"time"
-	//"os"
-	//"strconv"
+	//"fmt"
+	//"github.com/kyokomi/emoji/v2"
 )
 
 /*
 	Emoji
 */
 
+var WinterEmoji = []string{":snowflake:", ":snowman:", ":Christmas:", "party popper"}
+
 var FantasyEmoji = []string{":mage:", ":fairy:"}
+
 var HalloweenEmoji = []string{
 	":ghost:",
-	":goblin:",
-	":ogre:",
-	":bomb:",
-	":collision:",
+	//":goblin:",
+	//":ogre:",
+	//":bomb:",
+	//":collision:",
 	":bone:",
 	":vampire:",
-	":merperson:",
+	//":merperson:",
 	":zombie:",
 	":spider:",
 }
@@ -52,7 +54,7 @@ func emojiAmount() int {
 		}
 		return 0
 	*/
-	return 10
+	return 20
 }
 
 // Pass in [][]string
@@ -72,13 +74,12 @@ func GetEmojiString() string {
 
 	for numEmoji < emojiAmount() {
 		var emojiIndex = rand.Intn(len(theme))
-		//log.Printf("Emoji Index: %v | %s", emojiIndex, theme[emojiIndex])
-		//emojiString = fmt.Sprintf("%s%s", emojiString, theme[emojiIndex])
 		emojiString = emojiString + theme[emojiIndex]
-		//emojiString = fmt.Sprintf("%s%s", emojiString, theme[emojiIndex])
+		//fmt.Sprintf("Added emoji %s emojiString.", theme[emojiIndex])
+		//emoji.Println(theme[emojiIndex])
 		numEmoji = numEmoji + 1
 	}
-	return emojiString
+	return strings.TrimSpace(emojiString)
 }
 
 var asciiArts = []string{Sleigh1Art, Sleigh2Art}

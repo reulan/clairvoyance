@@ -34,6 +34,6 @@ COPY --chown=clairvoyance:clairvoyance --from=clairvoyance_build /clairvoyance-b
 COPY --chown=clairvoyance:clairvoyance tftest/ /app/tftest/
 
 # Run the API
-#use this env var${CLAIRVOYANCE_WORKING_DIR}
+#use this env var${CLAIRVOYANCE_PROJECT_DIR}
 WORKDIR /app/tftest/drift
 CMD ["/app/clairvoyance", "report", "discord"]
