@@ -3,6 +3,7 @@ module clairvoyance
 go 1.15
 
 require (
+	github.com/fatih/color v1.10.0
 	github.com/hashicorp/terraform-exec v0.12.0
 	github.com/hashicorp/terraform-json v0.8.0
 	github.com/hpcloud/tail v1.0.0

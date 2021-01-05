@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	//"io/ioutil"
 	"os"
+	"time"
+	//"io/ioutil"
 	//"path/filepath"
 
 	"clairvoyance/log"
@@ -79,6 +80,7 @@ var reportCmd = &cobra.Command{
 						var absServicePath = fmt.Sprintf("%s/%s", terraformDir, project.Name())
 						projects = append(projects, absServicePath)
 					}
+
 		*/
 
 		var projects = []string{
@@ -89,38 +91,23 @@ var reportCmd = &cobra.Command{
 			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
 		}
 
+		/* Terraform Drift Report */
+		driftDetectTime := time.Now()
 		var terraformServices []*terraform.TerraformService
 
+		tfChan := make(chan *terraform.TerraformService)
+
 		for _, absProjectPath := range projects {
-			//absProjectPath, _ := filepath.Abs(absProjectPath)
+			//tfService := terraform.DriftReport(absProjectPath, tfBinary)
+			go terraform.GetProjectDrift(tfChan, absProjectPath, tfBinary)
+		}
 
-			// terraform init
-			service := terraform.ConfigureTerraform(absProjectPath, tfBinary)
-			terraform.Init(service)
-
-			// terraform show
-			state := terraform.Show(service)
-
-			// terraform plan
-			// TODO: tf plan (with -out=out.tfplan)
-			planOptions := fmt.Sprintf("-out=%s/out.tfplan", absProjectPath)
-			var po []string = []string{planOptions}
-			fmt.Println(po)
-			var isPlanned bool = terraform.Plan(service)
-			planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
-			var rawPlan = terraform.ShowPlanFileRaw(service, planPath)
-			//log.Printf("rawPlan: %s", rawPlan)
-			planString := terraform.ResourceModificationCount(rawPlan)
-			modifiedResourceCount := terraform.ParseModificationCount(planString)
-			summary := terraform.DriftDetection(isPlanned, state)
-
-			_, projectName := terraform.GetProjectName(absProjectPath)
-			tfService := terraform.ExtractDriftReportData(state, projectName, modifiedResourceCount, summary)
-
-			terraformServices = append(terraformServices, tfService)
+		for _, _ = range projects {
+			terraformServices = append(terraformServices, <-tfChan)
 		}
 
 		terraform.CreateTableStdout(terraformServices)
+		fmt.Printf("Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
 		if optOutput == "discord" {
