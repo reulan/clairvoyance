@@ -97,6 +97,7 @@ var reportCmd = &cobra.Command{
 		}
 
 		terraform.CreateTableStdout(terraformServices)
+		fmt.Println("")
 		fmt.Printf("Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
