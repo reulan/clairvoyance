@@ -26,4 +26,5 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	fmt.Println(extras.GetAsciiArt())
 	emoji.Println(extras.GetEmojiString())
 	tbl.Print()
+	emoji.Println(extras.GetEmojiString())
 }

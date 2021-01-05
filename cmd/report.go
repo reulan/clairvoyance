@@ -73,10 +73,12 @@ var reportCmd = &cobra.Command{
 		var projects = []string{
 			"/home/reulan/noobshack/gameservers/csgo",
 			"/home/reulan/noobshack/gameservers/minecraft",
-			//"/home/reulan/noobshack/gameservers/mordhau/terraform",
-			//"/home/reulan/noobshack/gameservers/quake3",
-			//"/home/reulan/noobshack/gameservers/riskofrain2/terraform",
 			"/home/reulan/noobshack/gameservers/rust",
+			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+			"/home/reulan/noobshack/infrastructure/deploy/gaze",
+			"/home/reulan/noobshack/infrastructure/deploy/polarity",
+			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/reulan/ingress-controller",
 		}
 
 		/* Terraform Drift Report */
