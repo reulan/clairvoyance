@@ -61,7 +61,7 @@ var reportCmd = &cobra.Command{
 
 		// Setup projects to plan
 		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-		//clairvoyanceProjectDir = "/home/reulan/noobshack/infrastructure/deploy"
+		//var projects []string = terraform.GetPlannableProjects(clarivoyanceProjectDir)
 
 		var projects = []string{
 			"/home/reulan/noobshack/gameservers/rust",
