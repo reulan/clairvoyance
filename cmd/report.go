@@ -89,6 +89,8 @@ var reportCmd = &cobra.Command{
 			"/home/reulan/noobshack/gameservers/minecraft",
 			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
 			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+			"/home/reulan/noobshack/infrastructure/deploy/gaze",
+			"/home/reulan/noobshack/infrastructure/deploy/polarity",
 		}
 
 		/* Terraform Drift Report */
