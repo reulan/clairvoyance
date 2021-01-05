@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	//"clairvoyance/app/reporting"
+	//"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
 )
 
@@ -61,16 +62,21 @@ var reportCmd = &cobra.Command{
 
 		// Setup projects to plan
 		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-		//var projects []string = terraform.GetPlannableProjects(clarivoyanceProjectDir)
+
+		/*
+			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
+			if err != nil {
+				panic(err)
+			}
+		*/
 
 		var projects = []string{
-			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/gameservers/csgo",
-			//"/home/reulan/noobshack/gameservers/minecraft",
-			//"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
-			//"/home/reulan/noobshack/infrastructure/deploy/atlantis",
-			//"/home/reulan/noobshack/infrastructure/deploy/gaze",
-			//"/home/reulan/noobshack/infrastructure/deploy/polarity",
+			"/home/reulan/noobshack/gameservers/minecraft",
+			//"/home/reulan/noobshack/gameservers/mordhau/terraform",
+			//"/home/reulan/noobshack/gameservers/quake3",
+			//"/home/reulan/noobshack/gameservers/riskofrain2/terraform",
+			"/home/reulan/noobshack/gameservers/rust",
 		}
 
 		/* Terraform Drift Report */
@@ -80,7 +86,9 @@ var reportCmd = &cobra.Command{
 		tfChan := make(chan *terraform.TerraformService)
 
 		for _, absProjectPath := range projects {
-			//tfService := terraform.DriftReport(absProjectPath, tfBinary)
+			//var cvProject string = (clarivoyanceProjectDir + "/" + absProjectPath)
+			//fmt.Printf("Project to Drift Report: %s\n", cvProject)
+			//go terraform.GetProjectDrift(tfChan, cvProject, tfBinary)
 			go terraform.GetProjectDrift(tfChan, absProjectPath, tfBinary)
 		}
 

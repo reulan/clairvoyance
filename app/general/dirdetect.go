@@ -1,43 +1,52 @@
 package general
 
 import (
+	//"log"
 	"os"
-
-	"clairvoyance/app/terraform"
-	"clairvoyance/log"
+	"path/filepath"
 )
 
-//TODO: Fix all dirdetect functionalities, this is just a basic first pass on what I would like to support.
+// Check out this way to use a map[string]bool
+// https://play.golang.org/p/qw2FG5a9hv_Q
 
-// Single directory
-func DetectService(path string) string {
-	var project string
+func FindPlannableProjects(root, pattern string) ([]string, error) {
+	var projects []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			relFile, err := filepath.Rel(root, path)
+			if err != nil {
+				panic(err)
+			}
+			projectPlanDir := filepath.Dir(relFile)
 
-	includesHCL := terraform.IdentifyHCL(path)
-	if includesHCL {
-		project = path
-	}
-
-	return project
-}
-
-// Recursive directory search - not working, needs big update
-func DetectServices(path string) []string {
-	var services []string
-
-	dir, err := os.Open(path)
+			// check if dir is unique
+			if contains(projects, projectPlanDir) {
+				//log.Printf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
+			} else {
+				projects = append(projects, projectPlanDir)
+			}
+		}
+		return nil
+	})
 	if err != nil {
-		log.Errorf("Failed to open directory: %s", dir)
+		return nil, err
 	}
-
-	includesHCL := terraform.IdentifyHCL(path)
-	if includesHCL {
-		//services = path
-	}
-
-	log.Infof("%s", services)
-
-	return services
+	return projects, nil
 }
 
-// TODO: Terraform Cloud Workspace detection
+func contains(projects []string, projectDir string) bool {
+	for _, dir := range projects {
+		if dir == projectDir {
+			return true
+		}
+	}
+	return false
+}
