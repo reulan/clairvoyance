@@ -104,6 +104,8 @@ var reportCmd = &cobra.Command{
 		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		fmt.Println(extras.GetAsciiArt())
+		fmt.Println("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️")
+
 		terraform.CreateTableStdout(terraformServices)
 
 		// Where is the message going?
