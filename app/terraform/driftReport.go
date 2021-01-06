@@ -3,6 +3,12 @@ package terraform
 import (
 	"fmt"
 	"log"
+	"os"
+	"regexp"
+	"strconv"
+
+	tfjson "github.com/hashicorp/terraform-json"
+	tail "github.com/hpcloud/tail"
 )
 
 // Parse out.tfplan and return the last line if it contains "Plan".

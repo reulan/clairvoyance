@@ -2,15 +2,11 @@ package terraform
 
 import (
 	"log"
-	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 
 	"clairvoyance/app/reporting"
 
 	tfjson "github.com/hashicorp/terraform-json"
-	tail "github.com/hpcloud/tail"
 )
 
 // Default TerraformService struct for clairvoyance reporting.
