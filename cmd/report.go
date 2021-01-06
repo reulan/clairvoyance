@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 )
 
 func init() {
-	log.Println("[cmd/report.go] Running CLI command: ")
+	log.Debug("[report.go/init] Running CLI command: ")
 	rootCmd.AddCommand(reportCmd)
 	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
 	//reportCmd.Flags().Bool("festive", true, "Determine if ASCII art + emoji's are printed.")
@@ -103,11 +102,11 @@ var reportCmd = &cobra.Command{
 		}
 
 		terraform.CreateTableStdout(terraformServices)
-		log.Printf("[cmd/report.go] Drift report took %s to run.\n", time.Since(driftDetectTime))
+		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
 		if optionOutput == "discord" {
-			log.Println("[cmd/report.go] Outputting to Discord.")
+			log.Debug("[cmdReport] Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
 		} else if optionOutput == "stdout" {
 			//if *optionFestive {
@@ -115,7 +114,7 @@ var reportCmd = &cobra.Command{
 			//	emoji.Println(extras.GetEmojiString())
 			//}
 		} else {
-			log.Errorf("[cmd/report.go] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
+			log.Errorf("[cmdReport] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
 		}
 	},
 }

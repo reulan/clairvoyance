@@ -17,7 +17,7 @@ func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("[ConfigureTerraform] Created tfexec configuration for project: %s.", workingDir)
+	log.Debugf("[ConfigureTerraform] Created tfexec configuration for project: %s.", workingDir)
 	return service
 }
 
@@ -55,7 +55,7 @@ func Plan(service *tfexec.Terraform) bool {
 
 // Run `terraform plan` against the state defined in the working directory.
 func ShowPlanFileRaw(service *tfexec.Terraform, planPath string) string {
-	log.Info("[ShowPlanFileRaw] Human readable Plan derived from out.tfplan.")
+	log.Debug("[ShowPlanFileRaw] Human readable Plan derived from out.tfplan.")
 	plan, err := service.ShowPlanFileRaw(TerraformContext, planPath)
 	if err != nil {
 		panic(err)
