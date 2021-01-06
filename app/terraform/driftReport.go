@@ -13,7 +13,7 @@ import (
 )
 
 // Parse out.tfplan and return the last line if it contains "Plan".
-func GetResourceModificationCount(planFileRawString string) string {
+func GetResourceModificationCount(planFileRawString string) (string, error) {
 	var filename string = "/tmp/clairvoyance-tmp"
 	file, err := os.Create(filename)
 	if err != nil {
@@ -29,14 +29,14 @@ func GetResourceModificationCount(planFileRawString string) string {
 		if err != nil {
 			panic(err)
 		} else if matched {
-			return line.Text
+			return line.Text, err
 		}
 	}
-	return ""
+	return "", err
 }
 
 // Get # of Add, Change, Destroy in out.tfplan
-func ParseResourceModificationCount(resourceModificationString string) map[string]int {
+func ParseResourceModificationCount(resourceModificationString string) (map[string]int, error) {
 	var resourceModification map[string]int
 	resourceModification = make(map[string]int)
 
@@ -60,7 +60,7 @@ func ParseResourceModificationCount(resourceModificationString string) map[strin
 	resourceModification["CountChange"] = countChange
 	resourceModification["CountDestroy"] = countDestroy
 
-	return resourceModification
+	return resourceModification, err
 }
 
 // terraform plan -detailed-exitcode (essentially)
@@ -111,10 +111,16 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 	// terraform plan (-out=out.tfplan)
 	planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
 	var rawPlan = ShowPlanFileRaw(service, planPath)
-	planString := GetResourceModificationCount(rawPlan)
+	planString, err := GetResourceModificationCount(rawPlan)
+	if err != nil {
+		panic(err)
+	}
 
 	// If drift detected in Plan return the Add/Change/Destroy count values.
-	modifiedResourceCount := ParseResourceModificationCount(planString)
+	modifiedResourceCount, err := ParseResourceModificationCount(planString)
+	if err != nil {
+		panic(err)
+	}
 
 	// Get project name + status information
 	_, projectName := GetProjectName(absProjectPath)
@@ -122,7 +128,7 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 
 	// Format a TerraformService structure with all information needed for the Drift Report
 	tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)
-	return tfService
+	return tfService, nil
 }
 
 // Go channel which returns the result of a DriftReport (required to parallelize)

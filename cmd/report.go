@@ -7,6 +7,7 @@ import (
 	//"github.com/kyokomi/emoji/v2"
 	"github.com/spf13/cobra"
 
+	"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
 	"clairvoyance/log"
 )
@@ -67,25 +68,26 @@ var reportCmd = &cobra.Command{
 		}
 
 		// Setup projects to plan
-		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+		var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+		projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
+		if err != nil {
+			panic(err)
+		}
+
+		log.Printf("PROJECTS!!!\n%v", projects)
 
 		/*
-			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
-			if err != nil {
-				panic(err)
+			var projects = []string{
+				"/home/reulan/noobshack/gameservers/csgo",
+				"/home/reulan/noobshack/gameservers/minecraft",
+				"/home/reulan/noobshack/gameservers/rust",
+				"/home/reulan/noobshack/infrastructure/deploy/atlantis",
+				"/home/reulan/noobshack/infrastructure/deploy/gaze",
+				"/home/reulan/noobshack/infrastructure/deploy/polarity",
+				"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
+				"/home/reulan/noobshack/infrastructure/bootstrap/cluster/reulan/ingress-controller",
 			}
 		*/
-
-		var projects = []string{
-			"/home/reulan/noobshack/gameservers/csgo",
-			"/home/reulan/noobshack/gameservers/minecraft",
-			"/home/reulan/noobshack/gameservers/rust",
-			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
-			"/home/reulan/noobshack/infrastructure/deploy/gaze",
-			"/home/reulan/noobshack/infrastructure/deploy/polarity",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/reulan/ingress-controller",
-		}
 
 		/* Terraform Drift Report */
 		driftDetectTime := time.Now()

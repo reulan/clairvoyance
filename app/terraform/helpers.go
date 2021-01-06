@@ -54,7 +54,9 @@ func ResourceAddressList(state *tfjson.State) {
 
 // Clean up cached Terraform project files
 func CleanupCachedFiles(serviceDir string) {
-	serviceDir, _ = filepath.Abs(serviceDir)
+	//serviceDir, _ = filepath.Abs(serviceDir)
+	// If serviceDir != absolute path, use CVPD + serviceDir
+	//os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
 	// rm -rf ./.terraform
 	var terraformInitDir string = (serviceDir + "/.terraform")
