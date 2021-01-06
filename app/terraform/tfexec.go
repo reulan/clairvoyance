@@ -23,13 +23,27 @@ func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
 
 // Run `terraform init` so that the working directories context can be initialized.
 func Init(service *tfexec.Terraform) {
-	err := service.Init(TerraformContext)
+	err := service.Init(TerraformContext, tfexec.Lock(false))
 	if err != nil {
 		panic(err)
 	}
 	log.Debug("[Init] Initialized Terraform project.")
 }
 
+// (-detailed-exitcode)
+// Run `terraform plan` against the state defined in the working directory.
+// 0 = false (no changes)
+// 2 = true  (drift)
+func Plan(service *tfexec.Terraform) bool {
+	isPlanned, err := service.Plan(TerraformContext, tfexec.Out("out.tfplan"), tfexec.Lock(false))
+	if err != nil {
+		panic(err)
+	}
+	log.Debug("[Plan] Planning Terraform service and writing to out.tfplan.")
+	return isPlanned
+}
+
+// View State after it's been initialized and refreshed
 // Run `terraform show` against the state defined in the working directory.
 func Show(service *tfexec.Terraform) *tfjson.State {
 	state, err := service.Show(TerraformContext)
@@ -38,19 +52,6 @@ func Show(service *tfexec.Terraform) *tfjson.State {
 	}
 	log.Debug("[Show] Retrieving state object for project.")
 	return state
-}
-
-// (-detailed-exitcode)
-// Run `terraform plan` against the state defined in the working directory.
-// 0 = false (no changes)
-// 2 = true  (drift)
-func Plan(service *tfexec.Terraform) bool {
-	isPlanned, err := service.Plan(TerraformContext, tfexec.Out("out.tfplan"))
-	if err != nil {
-		panic(err)
-	}
-	log.Debug("[Plan] Planning Terraform service and writing to out.tfplan.")
-	return isPlanned
 }
 
 // Run `terraform plan` against the state defined in the working directory.
