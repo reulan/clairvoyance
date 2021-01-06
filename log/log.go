@@ -41,7 +41,7 @@ var defaultLogger *logrus.Logger
 
 func init() {
 	defaultLogger = newLogrusLogger(config.Config())
-	defaultLogger.SetLevel(logrus.DebugLevel)
+	defaultLogger.SetLevel(logrus.InfoLevel)
 	//defaultLogger.SetLevel(logrus.ErrorLevel)
 }
 

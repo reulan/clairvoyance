@@ -1,14 +1,16 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"time"
 
-	//"github.com/kyokomi/emoji/v2"
+	"github.com/kyokomi/emoji/v2"
 	"github.com/spf13/cobra"
 
 	//"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
+	"clairvoyance/extras"
 	"clairvoyance/log"
 )
 
@@ -100,19 +102,19 @@ var reportCmd = &cobra.Command{
 		for _, _ = range projects {
 			terraformServices = append(terraformServices, <-tfChan)
 		}
-
-		terraform.CreateTableStdout(terraformServices)
 		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
+		fmt.Println(extras.GetAsciiArt())
+		emoji.Println(extras.GetEmojiString())
+		terraform.CreateTableStdout(terraformServices)
+		emoji.Println(extras.GetEmojiString())
+
 		// Where is the message going?
-		if optionOutput == "discord" {
+		if optionOutput == "stdout" || optionOutput == "" {
+			log.Debug("[cmdReport] Outputting to Stdout.")
+		} else if optionOutput == "discord" {
 			log.Debug("[cmdReport] Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
-		} else if optionOutput == "stdout" {
-			//if *optionFestive {
-			//	fmt.Println(extras.GetAsciiArt())
-			//	emoji.Println(extras.GetEmojiString())
-			//}
 		} else {
 			log.Errorf("[cmdReport] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
 		}

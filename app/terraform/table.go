@@ -18,8 +18,8 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 
-	driftDetectedTable := table.New("Project Name", "Version", "Add", "Change", "Delete", "Information")
-	driftDetectedTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+	failedServicesTable := table.New("Project Name", "Version", "Add", "Change", "Delete", "Information")
+	failedServicesTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
 	noChangesTable := table.New("Project Name", "Version", "Information")
 	noChangesTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
@@ -29,8 +29,8 @@ func CreateTableStdout(tsArray []*TerraformService) {
 			log.Debug("[CreateTableStdout] Terraform service contains no drift.")
 			nct++
 		} else {
-			driftDetectedTable.AddRow(service.ProjectName, service.TerraformVersion, strconv.Itoa(service.CountAdd), strconv.Itoa(service.CountChange), strconv.Itoa(service.CountDestroy), service.Summary)
-			log.Debug("[CreateTableStdout] Added %s to driftDetectedTable.", service.ProjectName)
+			failedServicesTable.AddRow(service.ProjectName, service.TerraformVersion, strconv.Itoa(service.CountAdd), strconv.Itoa(service.CountChange), strconv.Itoa(service.CountDestroy), service.Summary)
+			log.Debug("[CreateTableStdout] Added %s to failedServicesTable.", service.ProjectName)
 			ddt++
 		}
 
@@ -39,7 +39,7 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	// Find a better way omit tables
 	fmt.Println("")
 	if ddt >= 1 {
-		driftDetectedTable.Print()
+		failedServicesTable.Print()
 		fmt.Println("")
 	}
 	if nct >= 1 {
@@ -58,7 +58,7 @@ func FailedServicesTable(failedServices []string) {
 
 	for _, service := range failedServices {
 		failedServicesTable.AddRow(service)
-		log.Debug("[CreateTableStdout] Added %s to failedServicesTable.", service)
+		log.Debugf("[CreateTableStdout] Added %s to failedServicesTable.", service)
 	}
 
 	// Find a better way omit tables

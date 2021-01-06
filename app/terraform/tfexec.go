@@ -27,7 +27,7 @@ func Init(service *tfexec.Terraform) {
 	if err != nil {
 		panic(err)
 	}
-	log.Debug("[Init] Initialized Terraform project: %s", service.WorkingDir())
+	log.Debugf("[Init] Initialized Terraform project: %s", service.WorkingDir())
 }
 
 // (-detailed-exitcode)
