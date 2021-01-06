@@ -97,6 +97,8 @@ func UpdateDriftReportData(state *tfjson.State, projectName string, counts map[s
 // The function that actually counts the most.
 func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 	// terraform init
+	CleanupCachedFiles(absProjectPath)
+
 	service := ConfigureTerraform(absProjectPath, tfBinary)
 	Init(service)
 

@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"os"
 	"path/filepath"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -49,4 +50,19 @@ func ResourceAddressList(state *tfjson.State) {
 		resourceValues := reporting.FormatTerraformResource(resources[i])
 		resourceMap[res.Address] = resourceValues
 	}
+}
+
+// Clean up cached Terraform project files
+func CleanupCachedFiles(serviceDir string) {
+	serviceDir, _ = filepath.Abs(serviceDir)
+
+	// rm -rf ./.terraform
+	var terraformInitDir string = (serviceDir + "/.terraform")
+	log.Debugf("[CleanUpCachedFiles] DELETING: %s", terraformInitDir)
+	os.RemoveAll(terraformInitDir)
+
+	// rm terraform.lock.hcl
+	var terraformLockFile string = (serviceDir + "/.terraform.lock.hcl")
+	log.Debugf("[CleanUpCachedFiles] DELETING: %s", terraformLockFile)
+	os.Remove(terraformLockFile)
 }

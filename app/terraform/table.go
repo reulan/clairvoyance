@@ -24,7 +24,7 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	noChangesTable := table.New("Project Name", "Version", "Information")
 	noChangesTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 	for _, service := range tsArray {
-		if service.Summary == "No Changes." {
+		if service.Summary == "No changes." {
 			noChangesTable.AddRow(service.ProjectName, service.TerraformVersion, service.Summary)
 			log.Debug("[CreateTableStdout] Terraform service contains no drift.")
 			nct++

@@ -77,8 +77,8 @@ var reportCmd = &cobra.Command{
 		*/
 
 		var projects = []string{
-			//"/home/reulan/noobshack/gameservers/csgo",
-			//"/home/reulan/noobshack/gameservers/minecraft",
+			"/home/reulan/noobshack/gameservers/csgo",
+			"/home/reulan/noobshack/gameservers/minecraft",
 			"/home/reulan/noobshack/gameservers/rust",
 			//"/home/reulan/noobshack/infrastructure/deploy/atlantis",
 			//"/home/reulan/noobshack/infrastructure/deploy/gaze",
