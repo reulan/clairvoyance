@@ -5,10 +5,7 @@ import (
 	"strconv"
 
 	"github.com/fatih/color"
-	"github.com/kyokomi/emoji/v2"
 	"github.com/rodaine/table"
-
-	extras "clairvoyance/extras"
 )
 
 // this is meant for stdout to allow for easier text manipluation
@@ -23,8 +20,5 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	}
 
 	fmt.Println("")
-	fmt.Println(extras.GetAsciiArt())
-	emoji.Println(extras.GetEmojiString())
 	tbl.Print()
-	emoji.Println(extras.GetEmojiString())
 }
