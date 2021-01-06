@@ -2,7 +2,6 @@ package extras
 
 import (
 	"math/rand"
-	"strings"
 	"time"
 	//"fmt"
 	//"github.com/kyokomi/emoji/v2"
@@ -13,21 +12,20 @@ import (
 */
 
 var WinterEmoji = []string{":snowflake:", ":snowman:", ":Christmas:", "party popper"}
-
 var FantasyEmoji = []string{":mage:", ":fairy:"}
-
 var HalloweenEmoji = []string{
 	":ghost:",
-	//":goblin:",
-	//":ogre:",
-	//":bomb:",
-	//":collision:",
 	":bone:",
 	":vampire:",
-	//":merperson:",
 	":zombie:",
 	":spider:",
 }
+
+//":merperson:",
+//":goblin:",
+//":ogre:",
+//":bomb:",
+//":collision:",
 
 var RobotEmoji = []string{
 	":alien monster:",
@@ -39,6 +37,7 @@ var emojiTheme = [][]string{
 	FantasyEmoji,
 	HalloweenEmoji,
 	RobotEmoji,
+	WinterEmoji,
 }
 
 func emojiAmount() int {
@@ -75,11 +74,9 @@ func GetEmojiString() string {
 	for numEmoji < emojiAmount() {
 		var emojiIndex = rand.Intn(len(theme))
 		emojiString = emojiString + theme[emojiIndex]
-		//fmt.Sprintf("Added emoji %s emojiString.", theme[emojiIndex])
-		//emoji.Println(theme[emojiIndex])
 		numEmoji = numEmoji + 1
 	}
-	return strings.TrimSpace(emojiString)
+	return emojiString
 }
 
 var asciiArts = []string{Sleigh1Art, Sleigh2Art}
@@ -103,11 +100,6 @@ func GetAsciiArt() string {
 		From: u8211619@cc.nctu.edu.tw (Jurcy Hwang)
 		Subject: [collection] my drawing
 		Date: 10 Jan 1995 02:40:46 GMT
-
-	bigSanta:
-		From: dionisio@infinet.com ()
-		Subject: Nice piece of ascii arts
-		Date: 28 Dec 1994 08:10:12 GMT
 */
 
 var Sleigh1Art string = `

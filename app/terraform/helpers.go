@@ -1,16 +1,13 @@
 package terraform
 
 import (
-	"log"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
-
-	"clairvoyance/app/reporting"
 
 	tfjson "github.com/hashicorp/terraform-json"
-	tail "github.com/hpcloud/tail"
+
+	"clairvoyance/app/reporting"
+	"clairvoyance/log"
 )
 
 // Default TerraformService struct for clairvoyance reporting.
@@ -53,4 +50,21 @@ func ResourceAddressList(state *tfjson.State) {
 		resourceValues := reporting.FormatTerraformResource(resources[i])
 		resourceMap[res.Address] = resourceValues
 	}
+}
+
+// Clean up cached Terraform project files
+func CleanupCachedFiles(serviceDir string) {
+	//serviceDir, _ = filepath.Abs(serviceDir)
+	// If serviceDir != absolute path, use CVPD + serviceDir
+	//os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+
+	// rm -rf ./.terraform
+	var terraformInitDir string = (serviceDir + "/.terraform")
+	log.Debugf("[CleanUpCachedFiles] DELETING: %s", terraformInitDir)
+	os.RemoveAll(terraformInitDir)
+
+	// rm terraform.lock.hcl
+	var terraformLockFile string = (serviceDir + "/.terraform.lock.hcl")
+	log.Debugf("[CleanUpCachedFiles] DELETING: %s", terraformLockFile)
+	os.Remove(terraformLockFile)
 }

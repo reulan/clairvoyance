@@ -17,26 +17,17 @@ func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("[cli/tfexec/ConfigureTerraform] Created tfexec configuration for project: %s.", workingDir)
+	log.Debugf("[ConfigureTerraform] Created tfexec configuration for project: %s.", workingDir)
 	return service
 }
 
 // Run `terraform init` so that the working directories context can be initialized.
 func Init(service *tfexec.Terraform) {
-	err := service.Init(TerraformContext)
+	err := service.Init(TerraformContext, tfexec.Lock(false))
 	if err != nil {
 		panic(err)
 	}
-	log.Info("[cli/tfexec/Init] Initialized Terraform project.")
-}
-
-// Run `terraform show` against the state defined in the working directory.
-func Show(service *tfexec.Terraform) *tfjson.State {
-	state, err := service.Show(TerraformContext)
-	if err != nil {
-		panic(err)
-	}
-	return state
+	log.Info("[Init] Initialized Terraform project: %s", service.WorkingDir())
 }
 
 // (-detailed-exitcode)
@@ -44,17 +35,28 @@ func Show(service *tfexec.Terraform) *tfjson.State {
 // 0 = false (no changes)
 // 2 = true  (drift)
 func Plan(service *tfexec.Terraform) bool {
-	log.Info("[cli/tfexec/Plan] - terraform plan")
-	isPlanned, err := service.Plan(TerraformContext, tfexec.Out("out.tfplan"))
+	isPlanned, err := service.Plan(TerraformContext, tfexec.Out("out.tfplan"), tfexec.Lock(false))
 	if err != nil {
 		panic(err)
 	}
+	log.Info("[Plan] Planning Terraform service and writing to out.tfplan.")
 	return isPlanned
+}
+
+// View State after it's been initialized and refreshed
+// Run `terraform show` against the state defined in the working directory.
+func Show(service *tfexec.Terraform) *tfjson.State {
+	state, err := service.Show(TerraformContext)
+	if err != nil {
+		panic(err)
+	}
+	log.Debug("[Show] Retrieving state object for project.")
+	return state
 }
 
 // Run `terraform plan` against the state defined in the working directory.
 func ShowPlanFileRaw(service *tfexec.Terraform, planPath string) string {
-	log.Info("[cli/tfexec/PlanFileRaw] terraform plan (human readable)")
+	log.Debug("[ShowPlanFileRaw] Human readable Plan derived from out.tfplan.")
 	plan, err := service.ShowPlanFileRaw(TerraformContext, planPath)
 	if err != nil {
 		panic(err)

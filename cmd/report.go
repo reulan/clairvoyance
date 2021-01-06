@@ -4,16 +4,21 @@ import (
 	"fmt"
 	"os"
 	"time"
-	//"io/ioutil"
-	//"path/filepath"
 
-	"clairvoyance/log"
 	"github.com/spf13/cobra"
 
-	//"clairvoyance/app/reporting"
 	//"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
+	"clairvoyance/extras"
+	"clairvoyance/log"
 )
+
+func init() {
+	log.Debug("[report.go/init] Running CLI command: ")
+	rootCmd.AddCommand(reportCmd)
+	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
+	//reportCmd.Flags().Bool("festive", true, "Determine if ASCII art + emoji's are printed.")
+}
 
 /*
 In order for a report to be done, a tfexec config should be populated and we need to ensure the following
@@ -24,10 +29,12 @@ The following options for additional reporting functionality.
 		--command <show/plan/apply> (Performs limited Terraform CLI logic, a more comprehensive report behaviour is used)
 		--path <working_directory>
 		--output [<discord>, <stdout>]
+		--festive
 
 		TODO: *what does a config file look like, where is this loaded from? (based off tfexc cfg?)
 		--config <clairvoyance_config>
 
+	clairvyoance report --output discord --festive
 	clairvoyance report --path ~/noobshack --output discord
 	clairvoyance report --command show --path ~/noobshack --output stdout
 */
@@ -40,12 +47,13 @@ var reportCmd = &cobra.Command{
 		clairvoyance report`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		// Figure out where to send data
-		optOutput, _ := cmd.Flags().GetString("output")
+		optionOutput, _ := cmd.Flags().GetString("output")
+		//optionFestive := cmd.Flags().Bool("festive", true, "Prints ASCII art + emojis")
 
 		// Get version of Terraform binary to use
-		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_0.13.2"
+		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_" + os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		//tfBinary := terraform.DetectBinary(binaryDir, terraformVersion)
+
 		var tfBinary = "/usr/bin/terraform"
 
 		// Setup Terraform Version to use
@@ -60,10 +68,9 @@ var reportCmd = &cobra.Command{
 			terraformVersion = "0.14.3"
 		}
 
-		// Setup projects to plan
-		//var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-
 		/*
+			// Setup projects to plan
+			var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
 			if err != nil {
 				panic(err)
@@ -88,36 +95,27 @@ var reportCmd = &cobra.Command{
 		tfChan := make(chan *terraform.TerraformService)
 
 		for _, absProjectPath := range projects {
-			//var cvProject string = (clarivoyanceProjectDir + "/" + absProjectPath)
-			//fmt.Printf("Project to Drift Report: %s\n", cvProject)
-			//go terraform.GetProjectDrift(tfChan, cvProject, tfBinary)
 			go terraform.GetProjectDrift(tfChan, absProjectPath, tfBinary)
 		}
 
 		for _, _ = range projects {
 			terraformServices = append(terraformServices, <-tfChan)
 		}
+		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
+
+		fmt.Println(extras.GetAsciiArt())
+		fmt.Println("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️")
 
 		terraform.CreateTableStdout(terraformServices)
-		fmt.Println("")
-		fmt.Printf("Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
-		if optOutput == "discord" {
-			log.Println("Outputting to Discord.")
+		if optionOutput == "stdout" || optionOutput == "" {
+			log.Debug("[cmdReport] Outputting to Stdout.")
+		} else if optionOutput == "discord" {
+			log.Debug("[cmdReport] Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
-		} else if optOutput == "stdout" {
-			//log.Println("Outputting to Stdout.")
 		} else {
-			log.Errorf("cmd/report - optOutput: [%s] not supported (discord, stdout)", optOutput)
+			log.Errorf("[cmdReport] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
 		}
 	},
-}
-
-func init() {
-	fmt.Println("cmd/report/go running.")
-	rootCmd.AddCommand(reportCmd)
-	//reportCmd.Flags().StringP("command", "c", "show", "Performs a specific Terraform command against the given project. (defaults to Show)")
-	//reportCmd.Flags().StringP("path", "p", "/path/to/terraform/project", "Specify the path of the Terraform project you'd like to report on")
-	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
 }

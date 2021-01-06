@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	//"clairvoyance/app/terraform"
 	"clairvoyance/log"
 )
 

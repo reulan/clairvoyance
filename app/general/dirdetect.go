@@ -1,9 +1,10 @@
 package general
 
 import (
-	//"log"
 	"os"
 	"path/filepath"
+
+	"clairvoyance/log"
 )
 
 // Check out this way to use a map[string]bool
@@ -11,6 +12,7 @@ import (
 
 func FindPlannableProjects(root string, pattern string) ([]string, error) {
 	var projects []string
+	var prefixPath string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
 	// For the specified root dir, find ALL files within all directories.
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -18,11 +20,15 @@ func FindPlannableProjects(root string, pattern string) ([]string, error) {
 			return err
 		}
 
-		// Check
+		// Check if file is directory, if so skip
 		if info.IsDir() {
 			return nil
 		}
 
+		// If the directory contains *.tf files, take note of:
+		// - Directory containing those said *.tf files (relative path)
+		// - If the directory has a file which contains `required_version` scrape dat.
+		// TODO: Don't use rel/abs as done with filepath, use GetProjectName function (to get shorthand)
 		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
 			return err
 		} else if matched {
@@ -30,11 +36,11 @@ func FindPlannableProjects(root string, pattern string) ([]string, error) {
 			if err != nil {
 				panic(err)
 			}
-			projectPlanDir := filepath.Dir(relFile)
+			projectPlanDir := (prefixPath + "/" + filepath.Dir(relFile))
 
 			// check if dir is unique
 			if contains(projects, projectPlanDir) {
-				//log.Printf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
+				log.Printf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
 			} else {
 				projects = append(projects, projectPlanDir)
 			}
@@ -51,6 +57,7 @@ func FindPlannableProjects(root string, pattern string) ([]string, error) {
 func contains(projects []string, projectDir string) bool {
 	for _, dir := range projects {
 		if dir == projectDir {
+			log.Printf("[contains] %s exists in projects []string.", dir)
 			return true
 		}
 	}

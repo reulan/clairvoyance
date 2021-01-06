@@ -56,8 +56,8 @@ make report-discord
 ```
 
 These commands are wrappers around the CLI tool, examples:
-- `clairvoyance report stdout`
-- `clairvoyance report discord --festive`
+- `clairvoyance report 
+- `clairvoyance report --output discord 
 
 
 ## Development
