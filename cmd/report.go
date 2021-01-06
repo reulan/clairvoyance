@@ -67,15 +67,13 @@ var reportCmd = &cobra.Command{
 			terraformVersion = "0.14.3"
 		}
 
-		// Setup projects to plan
 		/*
+			// Setup projects to plan
 			var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-				projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
-				if err != nil {
-					panic(err)
-				}
-
-				log.Printf("PROJECTS!!!\n%v", projects)
+			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
+			if err != nil {
+				panic(err)
+			}
 		*/
 
 		var projects = []string{

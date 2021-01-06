@@ -48,3 +48,22 @@ func CreateTableStdout(tsArray []*TerraformService) {
 	}
 	log.Debug("Sent Drift Report tables to stdout.")
 }
+
+func FailedServicesTable(failedServices []string) {
+	headerFmt := color.New(color.FgRed, color.Underline).SprintfFunc()
+	columnFmt := color.New(color.FgMagenta).SprintfFunc()
+
+	failedServicesTable := table.New("Project Name")
+	failedServicesTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+
+	for _, service := range failedServices {
+		failedServicesTable.AddRow(service)
+		log.Debug("[CreateTableStdout] Added %s to failedServicesTable.", service)
+	}
+
+	// Find a better way omit tables
+	fmt.Println("")
+	failedServicesTable.Print()
+	fmt.Println("")
+	log.Debug("Sent Failed Services Table to stdout.")
+}
