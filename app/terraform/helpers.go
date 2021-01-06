@@ -1,12 +1,12 @@
 package terraform
 
 import (
-	"log"
 	"path/filepath"
 
-	"clairvoyance/app/reporting"
-
 	tfjson "github.com/hashicorp/terraform-json"
+
+	"clairvoyance/app/reporting"
+	"clairvoyance/log"
 )
 
 // Default TerraformService struct for clairvoyance reporting.

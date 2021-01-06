@@ -5,19 +5,19 @@ import (
 	"os"
 	"time"
 
-	"github.com/kyokomi/emoji/v2"
+	//"github.com/kyokomi/emoji/v2"
 	"github.com/spf13/cobra"
 
 	"clairvoyance/app/terraform"
-	"clairvoyance/extras"
 	"clairvoyance/log"
 )
 
 func init() {
-	fmt.Println("[cmd/report.go] Running CLI command: ")
+	log.Println("[cmd/report.go] Running CLI command: ")
 	rootCmd.AddCommand(reportCmd)
 	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
-	reportCmd.Flags().Bool("festive", true, "Determine if ASCII art + emoji's are printed.")
+	//reportCmd.Flags().Bool("festive", true, "Determine if ASCII art + emoji's are printed.")
+}
 
 /*
 In order for a report to be done, a tfexec config should be populated and we need to ensure the following
@@ -47,8 +47,7 @@ var reportCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 		optionOutput, _ := cmd.Flags().GetString("output")
-		optionFestive, _ := cmd.Flags().Bool("festive", true)
-		cmd.Flag()
+		//optionFestive := cmd.Flags().Bool("festive", true, "Prints ASCII art + emojis")
 
 		// Get version of Terraform binary to use
 		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_" + os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
@@ -103,24 +102,20 @@ var reportCmd = &cobra.Command{
 			terraformServices = append(terraformServices, <-tfChan)
 		}
 
-		fmt.Println("")
-		fmt.Printf("Drift report took %s to run.\n", time.Since(driftDetectTime))
+		terraform.CreateTableStdout(terraformServices)
+		log.Printf("[cmd/report.go] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Where is the message going?
 		if optionOutput == "discord" {
-			log.Println("Outputting to Discord.")
+			log.Println("[cmd/report.go] Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
 		} else if optionOutput == "stdout" {
-			if optionFestive {
-				fmt.Println(extras.GetAsciiArt())
-				emoji.Println(extras.GetEmojiString())
-			}
-			terraform.CreateTableStdout(terraformServices)
-			if optionFestive {
-				emoji.Println(extras.GetEmojiString())
-			}
+			//if *optionFestive {
+			//	fmt.Println(extras.GetAsciiArt())
+			//	emoji.Println(extras.GetEmojiString())
+			//}
 		} else {
-			log.Errorf("[cmd/report] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
+			log.Errorf("[cmd/report.go] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
 		}
 	},
 }

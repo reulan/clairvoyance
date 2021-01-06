@@ -1,11 +1,12 @@
 package terraform
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fatih/color"
 	"github.com/rodaine/table"
+
+	"clairvoyance/log"
 )
 
 // this is meant for stdout to allow for easier text manipluation
@@ -19,6 +20,6 @@ func CreateTableStdout(tsArray []*TerraformService) {
 		tbl.AddRow(service.ProjectName, service.TerraformVersion, strconv.Itoa(service.CountAdd), strconv.Itoa(service.CountChange), strconv.Itoa(service.CountDestroy), service.Summary)
 	}
 
-	fmt.Println("")
 	tbl.Print()
+	log.Debug("Sent Drift Report table to stdout.")
 }

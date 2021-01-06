@@ -13,7 +13,7 @@ import (
 func FormatDriftReport(message string) string {
 	var title string = "Terraform Drift Detection Report"
 	var formattedMessage string = fmt.Sprintf("%s\n```\n%s\n```", title, message)
-	log.Printf("[FormatDriftReport] - Formatted message.\n%s", formattedMessage)
+	log.Debugf("[FormatDriftReport] Formatted message.\n%s", formattedMessage)
 	return formattedMessage
 }
 
@@ -21,17 +21,17 @@ func FormatDriftReport(message string) string {
 func FormatTerraformShow(state *tfjson.State) []byte {
 	output, err := json.MarshalIndent(state, "", "\t")
 	if err != nil {
-		log.Errorf("reporting/formatting - %s", err)
+		log.Errorf("[FormatTerraformShow] %s", err)
 	}
-	log.Printf("[FormatTerraformShow] Formatted message:\n%s", output)
+	log.Debugf("[FormatTerraformShow] Formatted message:\n%s", output)
 	return output
 }
 
 func FormatTerraformResource(resource *tfjson.StateResource) []byte {
 	formattedResource, err := json.MarshalIndent(resource, "", "\t")
 	if err != nil {
-		log.Errorf("reporting/formatting - %s", err)
+		log.Errorf("[FormatTerraformResources] %s", err)
 	}
-	//log.Printf("[FormatTerraformResource] Formatted message:\n%s", formattedResource)
+	log.Debugf("[FormatTerraformResource] Formatted message:\n%s", formattedResource)
 	return formattedResource
 }

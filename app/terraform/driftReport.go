@@ -2,13 +2,14 @@ package terraform
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"regexp"
 	"strconv"
 
 	tfjson "github.com/hashicorp/terraform-json"
 	tail "github.com/hpcloud/tail"
+
+	"clairvoyance/log"
 )
 
 // Parse out.tfplan and return the last line if it contains "Plan".
@@ -68,13 +69,13 @@ func GetDriftSummary(exitStatus bool, state *tfjson.State) string {
 	var message string
 	if exitStatus {
 		message = "Drift detected for Plan."
-		log.Printf("[DriftDetection] %s", message)
+		log.Debugf("[GetDriftSummary] %s", message)
 	} else if !exitStatus {
 		message = "No changes."
-		log.Printf("[DriftDetection] %s", message)
+		log.Debugf("[GetDriftSummary] %s", message)
 	} else {
 		message = "Error planning Terraform project."
-		log.Printf("[DriftDetection] %s", message)
+		log.Debugf("[GetDriftSummary] %s", message)
 	}
 	return message
 }
@@ -124,6 +125,6 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 
 // Go channel which returns the result of a DriftReport (required to parallelize)
 func GetProjectDrift(ch chan *TerraformService, absProjectPath string, tfBinary string) {
-	log.Println("[GetDriftReport] Getting values for project...")
+	log.Printf("[GetDriftReport] Getting values for project: %s", absProjectPath)
 	ch <- DriftReport(absProjectPath, tfBinary)
 }
