@@ -128,7 +128,7 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 
 	// Format a TerraformService structure with all information needed for the Drift Report
 	tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)
-	return tfService, nil
+	return tfService
 }
 
 // Go channel which returns the result of a DriftReport (required to parallelize)
