@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/kyokomi/emoji/v2"
 	"github.com/spf13/cobra"
 
 	//"clairvoyance/app/general"
@@ -105,9 +104,7 @@ var reportCmd = &cobra.Command{
 		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		fmt.Println(extras.GetAsciiArt())
-		emoji.Println(extras.GetEmojiString())
 		terraform.CreateTableStdout(terraformServices)
-		emoji.Println(extras.GetEmojiString())
 
 		// Where is the message going?
 		if optionOutput == "stdout" || optionOutput == "" {

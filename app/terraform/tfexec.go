@@ -27,7 +27,7 @@ func Init(service *tfexec.Terraform) {
 	if err != nil {
 		panic(err)
 	}
-	log.Debugf("[Init] Initialized Terraform project: %s", service.WorkingDir())
+	log.Info("[Init] Initialized Terraform project: %s", service.WorkingDir())
 }
 
 // (-detailed-exitcode)
@@ -39,7 +39,7 @@ func Plan(service *tfexec.Terraform) bool {
 	if err != nil {
 		panic(err)
 	}
-	log.Debug("[Plan] Planning Terraform service and writing to out.tfplan.")
+	log.Info("[Plan] Planning Terraform service and writing to out.tfplan.")
 	return isPlanned
 }
 
