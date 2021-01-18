@@ -59,8 +59,8 @@ These commands are wrappers around the CLI tool, examples:
 - `clairvoyance report 
 - `clairvoyance report --output discord 
 
-### Screenshot
-This screenshot comes from my [submission and work done for the HashiCorp Holiday Hackstravaganza](https://discuss.hashicorp.com/c/hashicraft-holidays-hackstravaganza/53):
+### Screenshots
+This screenshot comes from my [submission and work done for the HashiCorp Holiday Hackstravaganza](https://discuss.hashicorp.com/t/team-reulan/19347):
 ![clairvoyance](https://cdn.discordapp.com/attachments/431535786811457542/797034083011526666/unknown.png)
 
 
