@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-const Version = "0.2.3"
+const Version = "0.2.5"
 
 var GitCommit string // GitCommit returns the git commit that was compiled. This will be filled in by the compiler.
 var BuildDate = ""

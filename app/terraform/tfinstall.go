@@ -1,26 +1,33 @@
 package terraform
 
 import (
-//tfinstall "github.com/hashicorp/terraform-exec/tfinstall"
-//"clairvoyance/log"
+	"context"
+
+	"github.com/hashicorp/terraform-exec/tfinstall"
+
+	"clairvoyance/log"
 )
 
-/*
-// If terraform is not detected, install to the installation directory on the user's behalf.
+var TerraformBinaryContext = context.Background()
+
+//Identify if lastest (or specified) version binary is installed in a certain directory.
 func DetectBinary(installDir string, version string) string {
 	if version == "" {
-		tfbinary, err := tfinstall.Find(tfinstall.LatestVersion(installDir, false))
+		tfbinary, err := tfinstall.Find(TerraformBinaryContext, tfinstall.LatestVersion(installDir, false))
 		if err != nil {
 			log.Errorf("[DetectBinary] Could not install %s to %s.", version, installDir)
 		}
 		return tfbinary
 	} else {
-		tfbinary, err := tfinstall.Find(tfinstall.ExactVersion(version, installDir))
+		tfbinary, err := tfinstall.Find(TerraformBinaryContext, tfinstall.ExactVersion(version, installDir))
 		if err != nil {
 			log.Errorf("[DectectBinary] Could not install %s to %s.", version, installDir)
 		}
 		return tfbinary
 	}
-	return ""
+	// validate if installed (check /usr/bin/terraform) - need to expand for Windows
+	return "/usr/bin/terraform"
 }
-*/
+
+func InstallTerraform(installDir string, version string) {
+}

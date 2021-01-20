@@ -27,20 +27,31 @@ func Init(service *tfexec.Terraform) {
 	if err != nil {
 		panic(err)
 	}
-	log.Info("[Init] Initialized Terraform project: %s", service.WorkingDir())
+	log.Infof("[Init] Initialized Terraform project: %s", service.WorkingDir())
 }
 
 // (-detailed-exitcode)
 // Run `terraform plan` against the state defined in the working directory.
 // 0 = false (no changes)
+// 1 = Error
 // 2 = true  (drift)
-func Plan(service *tfexec.Terraform) bool {
+func Plan(service *tfexec.Terraform) (int, error) {
+	var exitCode int
+
 	isPlanned, err := service.Plan(TerraformContext, tfexec.Out("out.tfplan"), tfexec.Lock(false))
 	if err != nil {
-		panic(err)
+		exitCode = 1
+		return exitCode, err
 	}
-	log.Info("[Plan] Planning Terraform service and writing to out.tfplan.")
-	return isPlanned
+	log.Debug("[Plan] Planning Terraform service %s and writing to out.tfplan.")
+
+	if isPlanned {
+		exitCode = 2
+	} else {
+		exitCode = 0
+	}
+
+	return exitCode, err
 }
 
 // View State after it's been initialized and refreshed
@@ -55,11 +66,11 @@ func Show(service *tfexec.Terraform) *tfjson.State {
 }
 
 // Run `terraform plan` against the state defined in the working directory.
-func ShowPlanFileRaw(service *tfexec.Terraform, planPath string) string {
+func ShowPlanFileRaw(service *tfexec.Terraform, planPath string) (string, error) {
 	log.Debug("[ShowPlanFileRaw] Human readable Plan derived from out.tfplan.")
 	plan, err := service.ShowPlanFileRaw(TerraformContext, planPath)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return plan
+	return plan, err
 }

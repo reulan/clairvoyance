@@ -14,6 +14,7 @@ COPY app/ app/
 COPY cmd/ cmd/
 COPY config/ config/
 COPY log/ log/
+COPY tftest/ tftest/
 COPY version/ version/
 COPY main.go .
 RUN go build -o ./bin/clairvoyance .

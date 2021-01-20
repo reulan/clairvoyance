@@ -63,18 +63,23 @@ func ParseResourceModificationCount(resourceModificationString string) (map[stri
 	return resourceModification, err
 }
 
-// terraform plan -detailed-exitcode (essentially)
-// true == diff || false == No changes.
-func GetDriftSummary(exitStatus bool, state *tfjson.State) string {
+// terraform plan -detailed-exitcode
+// 0 = false (no changes)
+// 1 = Error
+// 2 = true  (drift)
+func GetDriftSummary(exitCode int, planErr error, state *tfjson.State) string {
 	var message string
-	if exitStatus {
+	if exitCode == 2 {
 		message = "Drift detected for Plan."
 		log.Debugf("[GetDriftSummary] %s", message)
-	} else if !exitStatus {
+	} else if exitCode == 0 {
 		message = "No changes."
 		log.Debugf("[GetDriftSummary] %s", message)
+	} else if exitCode == 1 {
+		message = fmt.Sprintf("Plan Error: %s", planErr)
+		log.Debugf("[GetDriftSummary] %s", message)
 	} else {
-		message = "Error planning Terraform project."
+		message = fmt.Sprintf("Improper exit code of %s returned.", exitCode)
 		log.Debugf("[GetDriftSummary] %s", message)
 	}
 	return message
@@ -106,11 +111,12 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 	state := Show(service)
 
 	// terraform plan (-detailed-exitcode)
-	var isPlanned bool = Plan(service)
+	exitCode, planErr := Plan(service)
 
 	// terraform plan (-out=out.tfplan)
 	planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
-	var rawPlan = ShowPlanFileRaw(service, planPath)
+	var rawPlan, showPlanErr = ShowPlanFileRaw(service, planPath)
+
 	planString, err := GetResourceModificationCount(rawPlan)
 	if err != nil {
 		panic(err)
@@ -122,9 +128,17 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 		panic(err)
 	}
 
+	// Determine error
+	var terraformError error
+	if planErr == nil && showPlanErr != nil {
+		terraformError = showPlanErr
+	} else {
+		terraformError = planErr
+	}
+
 	// Get project name + status information
 	_, projectName := GetProjectName(absProjectPath)
-	summary := GetDriftSummary(isPlanned, state)
+	summary := GetDriftSummary(exitCode, terraformError, state)
 
 	// Format a TerraformService structure with all information needed for the Drift Report
 	tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)

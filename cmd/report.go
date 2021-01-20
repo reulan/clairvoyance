@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	//"clairvoyance/app/general"
+	"clairvoyance/app/extras"
 	"clairvoyance/app/terraform"
-	"clairvoyance/extras"
 	"clairvoyance/log"
 )
 
@@ -79,6 +79,7 @@ var reportCmd = &cobra.Command{
 
 		var projects = []string{
 			"/home/reulan/noobshack/gameservers/csgo",
+			"/home/reulan/noobshack/gameservers/riskofrain2",
 			"/home/reulan/noobshack/gameservers/minecraft",
 			"/home/reulan/noobshack/gameservers/rust",
 			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
@@ -92,20 +93,22 @@ var reportCmd = &cobra.Command{
 		driftDetectTime := time.Now()
 		var terraformServices []*terraform.TerraformService
 
-		tfChan := make(chan *terraform.TerraformService)
+		tfChannel := make(chan *terraform.TerraformService)
 
 		for _, absProjectPath := range projects {
-			go terraform.GetProjectDrift(tfChan, absProjectPath, tfBinary)
+			go terraform.GetProjectDrift(tfChannel, absProjectPath, tfBinary)
 		}
 
 		for _, _ = range projects {
-			terraformServices = append(terraformServices, <-tfChan)
+			terraformServices = append(terraformServices, <-tfChannel)
 		}
 		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
+		// Festive! (for HashiCorp Holiday Hackstravaganza)
 		fmt.Println(extras.GetAsciiArt())
-		fmt.Println("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️")
+		fmt.Println(extras.Snowflakes)
 
+		// Drift Report
 		terraform.CreateTableStdout(terraformServices)
 
 		// Where is the message going?
