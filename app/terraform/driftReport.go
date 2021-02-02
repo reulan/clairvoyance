@@ -23,17 +23,22 @@ func GetResourceModificationCount(planFileRawString string) (string, error) {
 		file.WriteString(planFileRawString)
 	}
 	file.Close()
+	log.Debugf("[GetResourceModificationCount] Opening file: %s", filename)
 
+	var tailLine string = ""
 	t, err := tail.TailFile(filename, tail.Config{Follow: true})
 	for line := range t.Lines {
 		matched, err := regexp.MatchString("\\bPlan\\b", line.Text)
 		if err != nil {
 			panic(err)
 		} else if matched {
-			return line.Text, err
+			tailLine = line.Text
+			return tailLine, err
 		}
 	}
-	return "", err
+
+	log.Debugf("[GetResourceModificationCount] Returning last line of rawPlan (if matched): %s", tailLine)
+	return tailLine, err
 }
 
 // Get # of Add, Change, Destroy in out.tfplan
@@ -70,6 +75,7 @@ func ParseResourceModificationCount(resourceModificationString string) (map[stri
 // 2 = true  (drift)
 func GetDriftSummary(exitCode int, planErr error, state *tfjson.State, project string) string {
 	var message string
+	log.Debugf("[GetDriftSummary] EXITCODE %d", exitCode)
 	if exitCode == 2 {
 		message = "Drift detected for Plan."
 		log.Debugf("[GetDriftSummary] %s", message)
@@ -126,16 +132,24 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 		// terraform plan (-out=out.tfplan)
 		planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
 		var rawPlan, showPlanErr = ShowPlanFileRaw(service, planPath)
+		log.Debugf("[DriftReport] Retrieved rawPlan for project: %s.", project)
 
-		planString, err := GetResourceModificationCount(rawPlan)
-		if err != nil {
-			panic(err)
-		}
+		// If no rawPlan is able to be found, skip this and set ResourceMod count to 0,0,0 :'(
+		var resourceCount map[string]int = map[string]int{"CountAdd": 0, "CountChange": 0, "CountDestroy": 0}
+		if rawPlan != "" {
+			planString, err := GetResourceModificationCount(rawPlan)
+			if err != nil {
+				panic(err)
+			}
+			log.Debugf("[DriftReport] Retrieved resource count for project: %s.", project)
 
-		// If drift detected in Plan return the Add/Change/Destroy count values.
-		modifiedResourceCount, err := ParseResourceModificationCount(planString)
-		if err != nil {
-			panic(err)
+			// If drift detected in Plan return the Add/Change/Destroy count values.
+			modifiedResourceCount, err := ParseResourceModificationCount(planString)
+			if err != nil {
+				panic(err)
+			}
+			log.Debugf("[DriftReport] Parsing rawPlan to get modified resource count for project: %s.", project)
+			resourceCount = modifiedResourceCount
 		}
 
 		// Determine error
@@ -145,13 +159,16 @@ func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
 		} else {
 			terraformError = planErr
 		}
+		log.Debugf("[DriftReport] Determined Terraform Error for %s", project)
 
 		// Get project name + status information
 		_, projectName := GetProjectName(absProjectPath)
 		summary := GetDriftSummary(exitCode, terraformError, state, project)
+		log.Debugf("[DriftReport] Getting Drift Summary for %s", project)
 
 		// Format a TerraformService structure with all information needed for the Drift Report
-		tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)
+		tfService := UpdateDriftReportData(state, projectName, resourceCount, summary)
+		log.Debugf("[DriftReport] Returning Terraform Service for %s", project)
 		return tfService
 	}
 

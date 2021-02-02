@@ -47,7 +47,7 @@ func Plan(service *tfexec.Terraform) (int, error) {
 		exitCode = 1
 		return exitCode, err
 	}
-	log.Debug("[Plan] Planning Terraform service %s and writing to out.tfplan.")
+	log.Debug("[Plan] Planning Terraform service and writing to out.tfplan.")
 
 	if isPlanned {
 		exitCode = 2

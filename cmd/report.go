@@ -66,7 +66,7 @@ var reportCmd = &cobra.Command{
 			terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		} else {
 			// should be "" or "latest" - will hardcode to latest version for now
-			terraformVersion = "0.14.3"
+			terraformVersion = "0.14.5"
 		}
 
 		// Setup projects to plan
@@ -75,9 +75,6 @@ var reportCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-
-		// override projects for testing
-		projects = []string{"/Users/mpmsimo/noobshack/gameservers/rust/rustdm"}
 
 		/* Terraform Drift Report */
 		driftDetectTime := time.Now()

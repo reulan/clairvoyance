@@ -3,6 +3,7 @@ package general
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"clairvoyance/log"
 )
@@ -37,9 +38,15 @@ func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 			}
 			projectPlanDir := (prefixPath + "/" + filepath.Dir(relFile))
 
+			// omit dirs that are for modules "/.terraform/modules"
+			modulesRegex := `(?i)/.terraform/modules\b`
+			moduleMatched, _ := regexp.MatchString(modulesRegex, projectPlanDir)
+
 			// check if dir is unique
 			if contains(projects, projectPlanDir) {
 				log.Printf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
+			} else if moduleMatched {
+				log.Printf("[WalkMatch] Project %s is a Terraform module.", projectPlanDir)
 			} else {
 				projects = append(projects, projectPlanDir)
 			}

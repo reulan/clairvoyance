@@ -13,12 +13,16 @@ import (
 // this is meant for stdout to allow for easier text manipluation
 func CreateTableStdout(tsArray []*TerraformService) {
 	var ddt int = 0
+	var fst int = 0
 	var nct int = 0
 
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 
-	failedServicesTable := table.New("Project Name", "Version", "Add", "Change", "Delete", "Information")
+	driftDetectedTable := table.New("Project Name", "Version", "Add", "Change", "Delete", "Information")
+	driftDetectedTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+
+	failedServicesTable := table.New("Project Name", "Version", "Information")
 	failedServicesTable.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
 	noChangesTable := table.New("Project Name", "Version", "Information")
@@ -28,22 +32,29 @@ func CreateTableStdout(tsArray []*TerraformService) {
 			noChangesTable.AddRow(service.ProjectName, service.TerraformVersion, service.Summary)
 			log.Debug("[CreateTableStdout] Terraform service contains no drift.")
 			nct++
+		} else if service.Summary == "Drift detected for Plan." {
+			driftDetectedTable.AddRow(service.ProjectName, service.TerraformVersion, strconv.Itoa(service.CountAdd), strconv.Itoa(service.CountChange), strconv.Itoa(service.CountDestroy), service.Summary)
+			log.Debugf("[CreateTableStdout] Added %s to driftDetectedTable.", service.ProjectName)
+			ddt++
 		} else {
 			failedServicesTable.AddRow(service.ProjectName, service.TerraformVersion, strconv.Itoa(service.CountAdd), strconv.Itoa(service.CountChange), strconv.Itoa(service.CountDestroy), service.Summary)
-			log.Debug("[CreateTableStdout] Added %s to failedServicesTable.", service.ProjectName)
-			ddt++
+			log.Debugf("[CreateTableStdout] Added %s to failedServicesTable.", service.ProjectName)
+			fst++
 		}
-
 	}
 
 	// Find a better way omit tables
 	fmt.Println("")
 	if ddt >= 1 {
-		failedServicesTable.Print()
+		driftDetectedTable.Print()
 		fmt.Println("")
 	}
 	if nct >= 1 {
 		noChangesTable.Print()
+		fmt.Println("")
+	}
+	if fst >= 1 {
+		failedServicesTable.Print()
 		fmt.Println("")
 	}
 	log.Debug("Sent Drift Report tables to stdout.")
@@ -58,7 +69,7 @@ func FailedServicesTable(failedServices []string) {
 
 	for _, service := range failedServices {
 		failedServicesTable.AddRow(service)
-		log.Debugf("[CreateTableStdout] Added %s to failedServicesTable.", service)
+		log.Debugf("[FailedServices] Added %s to failedServicesTable.", service)
 	}
 
 	// Find a better way omit tables
