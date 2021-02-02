@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -12,13 +11,6 @@ import (
 	"clairvoyance/app/terraform"
 	"clairvoyance/log"
 )
-
-func init() {
-	log.Debug("[report.go/init] Running CLI command: ")
-	rootCmd.AddCommand(reportCmd)
-	reportCmd.Flags().StringP("output", "o", "discord", "Choose the target medium to report to. (discord, stdout)")
-	//reportCmd.Flags().Bool("festive", true, "Determine if ASCII art + emoji's are printed.")
-}
 
 /*
 In order for a report to be done, a tfexec config should be populated and we need to ensure the following
@@ -41,79 +33,52 @@ The following options for additional reporting functionality.
 
 var reportCmd = &cobra.Command{
 	Use:   "report",
-	Short: "Reports terraform drift to Discord",
-	Long: `Reports terraform drift to Discord
+	Short: "Outputs Terraform Drift Report to specified medium",
+	Long: `Outputs Terraform Drift Report to specified medium"
 		Usage:
 		clairvoyance report`,
 
 	Run: func(cmd *cobra.Command, args []string) {
+		// Setup CLI options
 		optionOutput, _ := cmd.Flags().GetString("output")
-		//optionFestive := cmd.Flags().Bool("festive", true, "Prints ASCII art + emojis")
+		optionFestive, _ := cmd.Flags().GetBool("festive")
 
-		// Get version of Terraform binary to use
-		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_" + os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
-		//tfBinary := terraform.DetectBinary(binaryDir, terraformVersion)
+		// Configure Terraform settings for Clairvoyance
+		tfBinary := terraform.DetectTerraformBinary()
+		//tfVersion := terraform.DetectTerraformVersion()
+		cvProjects, cvIsPlannable := general.GetPlannableProjects()
 
-		//var tfBinary = "/usr/bin/terraform"
-		var tfBinary = "/usr/local/bin/terraform"
-
-		// Setup Terraform Version to use
-		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
-		var terraformVersion string
-		_ = terraformVersion
-
-		if tfVersionSet {
-			terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
-		} else {
-			// should be "" or "latest" - will hardcode to latest version for now
-			terraformVersion = "0.14.5"
-		}
-
-		// Setup projects to plan
-		var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-		projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
-		if err != nil {
-			panic(err)
-		}
-
-		/* Terraform Drift Report */
+		// Terraform Drift Report
 		driftDetectTime := time.Now()
+
 		var terraformServices []*terraform.TerraformService
 		tfChannel := make(chan *terraform.TerraformService)
 
-		// Check to see if projects list is more than 0, to determine if plannable
-		var PlannableProjects bool
-
-		if len(projects) == 0 {
-			PlannableProjects = false
-		} else {
-			PlannableProjects = true
-		}
-
-		if PlannableProjects {
-			for _, absProjectPath := range projects {
+		if cvIsPlannable {
+			for _, absProjectPath := range cvProjects {
 				go terraform.GetProjectDrift(tfChannel, absProjectPath, tfBinary)
 			}
 
-			for _, _ = range projects {
+			for _, _ = range cvProjects {
 				terraformServices = append(terraformServices, <-tfChannel)
 			}
 		} else {
 			log.Printf("[reportCmd] No *.tf files found in CLAIRVOYANCE_WORKING_DIR.")
 		}
 
-		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
-
-		// Festive! (for HashiCorp Holiday Hackstravaganza)
-		fmt.Println(extras.GetAsciiArt())
-		fmt.Println(extras.Snowflakes)
-
-		// Drift Report
-		terraform.CreateTableStdout(terraformServices)
-
 		// Where is the message going?
 		if optionOutput == "stdout" || optionOutput == "" {
 			log.Debug("[cmdReport] Outputting to Stdout.")
+
+			// Festive! (for HashiCorp Holiday Hackstravaganza)
+			if optionFestive {
+				fmt.Println(extras.GetAsciiArt())
+				fmt.Println(extras.Snowflakes)
+			}
+			terraform.CreateTableStdout(terraformServices)
+
+			// Drift Report
+			log.Printf("[reportCmd] Drift report took %s to report to stdout.\n", time.Since(driftDetectTime))
 		} else if optionOutput == "discord" {
 			log.Debug("[cmdReport] Outputting to Discord.")
 			//reporting.SendMessageDiscord(message)
@@ -121,4 +86,11 @@ var reportCmd = &cobra.Command{
 			log.Errorf("[cmdReport] optionOutput: [%s] not supported (discord, stdout)", optionOutput)
 		}
 	},
+}
+
+func init() {
+	log.Debug("[report.go/init] Running CLI command: ")
+	rootCmd.AddCommand(reportCmd)
+	reportCmd.Flags().StringP("output", "o", "stdout", "Where to report to. (stdout, discord)")
+	reportCmd.Flags().BoolP("festive", "f", false, "Determine if ASCII art + emoji's are printed.")
 }

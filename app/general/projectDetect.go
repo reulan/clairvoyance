@@ -8,11 +8,10 @@ import (
 	"clairvoyance/log"
 )
 
-var prefixPath string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+var clairvoyanceProjectDir string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
 func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 	var projects []string
-	var prefixPath string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
 	// For the specified baseDir dir, find ALL files within all directories.
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
@@ -36,7 +35,7 @@ func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 			if err != nil {
 				panic(err)
 			}
-			projectPlanDir := (prefixPath + "/" + filepath.Dir(relFile))
+			projectPlanDir := (clairvoyanceProjectDir + "/" + filepath.Dir(relFile))
 
 			// omit dirs that are for modules "/.terraform/modules"
 			modulesRegex := `(?i)/.terraform/modules\b`
@@ -68,4 +67,23 @@ func contains(projects []string, projectDir string) bool {
 		}
 	}
 	return false
+}
+
+func GetPlannableProjects() ([]string, bool) {
+	// Setup projects to plan
+	projects, err := FindPlannableProjects(clairvoyanceProjectDir, "*.tf")
+	if err != nil {
+		panic(err)
+	}
+
+	// Check to see if projects list is more than 0, to determine if plannable
+	var isPlannable bool
+
+	if len(projects) == 0 {
+		isPlannable = false
+	} else {
+		isPlannable = true
+	}
+
+	return projects, isPlannable
 }

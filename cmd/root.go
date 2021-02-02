@@ -11,10 +11,10 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "clairvoyance <command> [<option 1>, (<option 2)]",
+	Use:   "clairvoyance <command> [options] (flags)",
 	Short: "Invoke subcommands of clairvoyance.",
 	Long: `Usage:
-            clairvoyance <command>`,
+            clairvoyance <command> [options] (flags)`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
