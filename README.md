@@ -3,20 +3,28 @@ Drift detection and reporting for Terraform.
 
 THIS TOOL IS A WORK IN PROGRESS AND MAY NOT WORK AS DESCRIBED BELOW
 
+When ready for production use stable binaries will be released as GitHub versions and correlated docker tags will be available to pull from the specified registry.
+
+
 ## Overview
 Currently, the `clairvoyance` software does the following:
 - Allows running of Terraform commands for specified working directory.
 - Show the statefile information and if any changes are detected. 
-- Reporting to Discord text channel via webhook or standard output
+- Reporting to standard output as a table
+- Terraform Report stats (added/changed/deleted, total projects, versions, etc)
+- Clarivoyance metadata (how long it takes for a plan or report to be completed + app metrics)
 
 In the future I would like to support:
 - Identifies installed version of Terraform or installs specified version.
 - Planning multiple states across backends
 - Terraform project detection (local file, atlantis.yaml, Terraform Cloud workspaces)
-- Terraform Report stats (added/changed/deleted, total projects, versions, etc)
-- Clarivoyance metadata (how long it takes for a plan or report to be completed + app metrics)
 - Generate HCL code suggestions
-- Report to other mediums (Slack, IRC, email)
+- Report to other mediums (Discord, Slack, IRC, email)
+
+### Screenshots
+This screenshot comes from my [submission and work done for the HashiCorp Holiday Hackstravaganza](https://discuss.hashicorp.com/t/team-reulan/19347):
+![clairvoyance](https://cdn.discordapp.com/attachments/431535786811457542/797034083011526666/unknown.png)
+
 
 ## Project setup
 Ensure Golang is installed and configured.
@@ -58,10 +66,6 @@ make report-discord
 These commands are wrappers around the CLI tool, examples:
 - `clairvoyance report 
 - `clairvoyance report --output discord 
-
-### Screenshots
-This screenshot comes from my [submission and work done for the HashiCorp Holiday Hackstravaganza](https://discuss.hashicorp.com/t/team-reulan/19347):
-![clairvoyance](https://cdn.discordapp.com/attachments/431535786811457542/797034083011526666/unknown.png)
 
 
 ## Development

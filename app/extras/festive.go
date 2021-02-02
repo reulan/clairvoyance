@@ -11,27 +11,12 @@ import (
 	Emoji
 */
 
-var WinterEmoji = []string{":snowflake:", ":snowman:", ":Christmas:", "party popper"}
+var Snowflakes string = ("❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️❄️")
+
 var FantasyEmoji = []string{":mage:", ":fairy:"}
-var HalloweenEmoji = []string{
-	":ghost:",
-	":bone:",
-	":vampire:",
-	":zombie:",
-	":spider:",
-}
-
-//":merperson:",
-//":goblin:",
-//":ogre:",
-//":bomb:",
-//":collision:",
-
-var RobotEmoji = []string{
-	":alien monster:",
-	":robot:",
-	":alien:",
-}
+var HalloweenEmoji = []string{":ghost:", ":bone:", ":vampire:", ":zombie:", ":spider:"}
+var RobotEmoji = []string{":alien monster:", ":robot:", ":alien:"}
+var WinterEmoji = []string{":snowflake:", ":snowman:", ":Christmas:", "party popper"}
 
 var emojiTheme = [][]string{
 	FantasyEmoji,
@@ -53,6 +38,7 @@ func emojiAmount() int {
 		}
 		return 0
 	*/
+	// Hardcode to 20, because the above was wonky.
 	return 20
 }
 
@@ -61,7 +47,6 @@ func emojiAmount() int {
 // Find terminal width / character length
 // for each num in witdhj choose a random emoji from theme
 // return the string
-
 func GetEmojiString() string {
 	rand.Seed(time.Now().UnixNano())
 	var randomTheme int = rand.Intn(2)
@@ -90,16 +75,17 @@ func GetAsciiArt() string {
 }
 
 /*
-	ASCII art
-*/
+	>>>> ASCII art <<<<
 
-/*
 	Art taken from: https://asciiart.website/index.php?art=holiday/christmas/santa
 
-	sleigh1Art:
+	Sleigh1Art:
 		From: u8211619@cc.nctu.edu.tw (Jurcy Hwang)
 		Subject: [collection] my drawing
 		Date: 10 Jan 1995 02:40:46 GMT
+
+	Sleigh2Art:
+		Uncredited on website mentioned above.
 */
 
 var Sleigh1Art string = `
