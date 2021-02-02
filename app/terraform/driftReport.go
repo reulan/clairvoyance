@@ -9,6 +9,7 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 	tail "github.com/hpcloud/tail"
 
+	//"clairvoyance/app/general"
 	"clairvoyance/log"
 )
 
@@ -67,7 +68,7 @@ func ParseResourceModificationCount(resourceModificationString string) (map[stri
 // 0 = false (no changes)
 // 1 = Error
 // 2 = true  (drift)
-func GetDriftSummary(exitCode int, planErr error, state *tfjson.State) string {
+func GetDriftSummary(exitCode int, planErr error, state *tfjson.State, project string) string {
 	var message string
 	if exitCode == 2 {
 		message = "Drift detected for Plan."
@@ -76,7 +77,7 @@ func GetDriftSummary(exitCode int, planErr error, state *tfjson.State) string {
 		message = "No changes."
 		log.Debugf("[GetDriftSummary] %s", message)
 	} else if exitCode == 1 {
-		message = fmt.Sprintf("Plan Error: %s", planErr)
+		message = "Failed to run tfxec on project: " + project
 		log.Debugf("[GetDriftSummary] %s", message)
 	} else {
 		message = fmt.Sprintf("Improper exit code of %s returned.", exitCode)
@@ -101,47 +102,59 @@ func UpdateDriftReportData(state *tfjson.State, projectName string, counts map[s
 
 // The function that actually counts the most.
 func DriftReport(absProjectPath string, tfBinary string) *TerraformService {
-	// terraform init
+	// Clairvoyance Pre-Init
 	CleanupCachedFiles(absProjectPath)
 
+	// tfexec Setup
 	service := ConfigureTerraform(absProjectPath, tfBinary)
-	Init(service)
 
-	// terraform show
-	state := Show(service)
-
-	// terraform plan (-detailed-exitcode)
-	exitCode, planErr := Plan(service)
-
-	// terraform plan (-out=out.tfplan)
-	planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
-	var rawPlan, showPlanErr = ShowPlanFileRaw(service, planPath)
-
-	planString, err := GetResourceModificationCount(rawPlan)
+	// terraform init
+	project, failedProject, err := Init(service)
 	if err != nil {
-		panic(err)
+		log.Infof("[DriftReport] Failed project: %s", project)
 	}
 
-	// If drift detected in Plan return the Add/Change/Destroy count values.
-	modifiedResourceCount, err := ParseResourceModificationCount(planString)
-	if err != nil {
-		panic(err)
+	var tfService *TerraformService = &TerraformService{}
+
+	if !failedProject {
+		// terraform show
+		state := Show(service)
+
+		// terraform plan (-detailed-exitcode)
+		exitCode, planErr := Plan(service)
+
+		// terraform plan (-out=out.tfplan)
+		planPath := fmt.Sprintf("%s/out.tfplan", absProjectPath)
+		var rawPlan, showPlanErr = ShowPlanFileRaw(service, planPath)
+
+		planString, err := GetResourceModificationCount(rawPlan)
+		if err != nil {
+			panic(err)
+		}
+
+		// If drift detected in Plan return the Add/Change/Destroy count values.
+		modifiedResourceCount, err := ParseResourceModificationCount(planString)
+		if err != nil {
+			panic(err)
+		}
+
+		// Determine error
+		var terraformError error
+		if planErr == nil && showPlanErr != nil {
+			terraformError = showPlanErr
+		} else {
+			terraformError = planErr
+		}
+
+		// Get project name + status information
+		_, projectName := GetProjectName(absProjectPath)
+		summary := GetDriftSummary(exitCode, terraformError, state, project)
+
+		// Format a TerraformService structure with all information needed for the Drift Report
+		tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)
+		return tfService
 	}
 
-	// Determine error
-	var terraformError error
-	if planErr == nil && showPlanErr != nil {
-		terraformError = showPlanErr
-	} else {
-		terraformError = planErr
-	}
-
-	// Get project name + status information
-	_, projectName := GetProjectName(absProjectPath)
-	summary := GetDriftSummary(exitCode, terraformError, state)
-
-	// Format a TerraformService structure with all information needed for the Drift Report
-	tfService := UpdateDriftReportData(state, projectName, modifiedResourceCount, summary)
 	return tfService
 }
 

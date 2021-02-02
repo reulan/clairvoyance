@@ -12,7 +12,6 @@ import (
 var TerraformContext = context.Background()
 
 func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
-	execPath = "/usr/bin/terraform"
 	service, err := tfexec.NewTerraform(workingDir, execPath)
 	if err != nil {
 		panic(err)
@@ -22,12 +21,17 @@ func ConfigureTerraform(workingDir string, execPath string) *tfexec.Terraform {
 }
 
 // Run `terraform init` so that the working directories context can be initialized.
-func Init(service *tfexec.Terraform) {
+func Init(service *tfexec.Terraform) (string, bool, error) {
+	var project string = service.WorkingDir()
+	var failed bool = false
+
 	err := service.Init(TerraformContext, tfexec.Lock(false))
 	if err != nil {
-		panic(err)
+		failed = true
 	}
-	log.Infof("[Init] Initialized Terraform project: %s", service.WorkingDir())
+	log.Infof("[Init] Initialized Terraform project: %s", project)
+
+	return project, failed, err
 }
 
 // (-detailed-exitcode)

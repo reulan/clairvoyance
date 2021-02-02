@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	//"clairvoyance/app/general"
 	"clairvoyance/app/extras"
+	"clairvoyance/app/general"
 	"clairvoyance/app/terraform"
 	"clairvoyance/log"
 )
@@ -54,7 +54,8 @@ var reportCmd = &cobra.Command{
 		//var binaryDir = os.Getenv("GOPATH") + "/src/clairvoyance/tfinstall/terraform_" + os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
 		//tfBinary := terraform.DetectBinary(binaryDir, terraformVersion)
 
-		var tfBinary = "/usr/bin/terraform"
+		//var tfBinary = "/usr/bin/terraform"
+		var tfBinary = "/usr/local/bin/terraform"
 
 		// Setup Terraform Version to use
 		var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
@@ -68,40 +69,42 @@ var reportCmd = &cobra.Command{
 			terraformVersion = "0.14.3"
 		}
 
-		/*
-			// Setup projects to plan
-			var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
-			projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
-			if err != nil {
-				panic(err)
-			}
-		*/
-
-		var projects = []string{
-			"/home/reulan/noobshack/gameservers/csgo",
-			"/home/reulan/noobshack/gameservers/riskofrain2",
-			"/home/reulan/noobshack/gameservers/minecraft",
-			"/home/reulan/noobshack/gameservers/rust",
-			"/home/reulan/noobshack/infrastructure/deploy/atlantis",
-			"/home/reulan/noobshack/infrastructure/deploy/gaze",
-			"/home/reulan/noobshack/infrastructure/deploy/polarity",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/noobshack/ingress-controller",
-			"/home/reulan/noobshack/infrastructure/bootstrap/cluster/reulan/ingress-controller",
+		// Setup projects to plan
+		var clarivoyanceProjectDir = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
+		projects, err := general.FindPlannableProjects(clarivoyanceProjectDir, "*.tf")
+		if err != nil {
+			panic(err)
 		}
+
+		// override projects for testing
+		projects = []string{"/Users/mpmsimo/noobshack/gameservers/rust/rustdm"}
 
 		/* Terraform Drift Report */
 		driftDetectTime := time.Now()
 		var terraformServices []*terraform.TerraformService
-
 		tfChannel := make(chan *terraform.TerraformService)
 
-		for _, absProjectPath := range projects {
-			go terraform.GetProjectDrift(tfChannel, absProjectPath, tfBinary)
+		// Check to see if projects list is more than 0, to determine if plannable
+		var PlannableProjects bool
+
+		if len(projects) == 0 {
+			PlannableProjects = false
+		} else {
+			PlannableProjects = true
 		}
 
-		for _, _ = range projects {
-			terraformServices = append(terraformServices, <-tfChannel)
+		if PlannableProjects {
+			for _, absProjectPath := range projects {
+				go terraform.GetProjectDrift(tfChannel, absProjectPath, tfBinary)
+			}
+
+			for _, _ = range projects {
+				terraformServices = append(terraformServices, <-tfChannel)
+			}
+		} else {
+			log.Printf("[reportCmd] No *.tf files found in CLAIRVOYANCE_WORKING_DIR.")
 		}
+
 		log.Printf("[reportCmd] Drift report took %s to run.\n", time.Since(driftDetectTime))
 
 		// Festive! (for HashiCorp Holiday Hackstravaganza)

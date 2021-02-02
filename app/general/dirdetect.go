@@ -7,15 +7,14 @@ import (
 	"clairvoyance/log"
 )
 
-// Check out this way to use a map[string]bool
-// https://play.golang.org/p/qw2FG5a9hv_Q
+var prefixPath string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
-func FindPlannableProjects(root string, pattern string) ([]string, error) {
+func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 	var projects []string
 	var prefixPath string = os.Getenv("CLAIRVOYANCE_PROJECT_DIR")
 
-	// For the specified root dir, find ALL files within all directories.
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	// For the specified baseDir dir, find ALL files within all directories.
+	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -32,7 +31,7 @@ func FindPlannableProjects(root string, pattern string) ([]string, error) {
 		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
 			return err
 		} else if matched {
-			relFile, err := filepath.Rel(root, path)
+			relFile, err := filepath.Rel(baseDir, path)
 			if err != nil {
 				panic(err)
 			}
@@ -50,7 +49,7 @@ func FindPlannableProjects(root string, pattern string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return projects, nil
+	return projects, err
 }
 
 // Check to see if projectDir is in projects array
