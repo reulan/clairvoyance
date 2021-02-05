@@ -68,3 +68,16 @@ func CleanupCachedFiles(serviceDir string) {
 	log.Debugf("[CleanUpCachedFiles] DELETING: %s", terraformLockFile)
 	os.Remove(terraformLockFile)
 }
+
+func DetectTerraformVersion() string {
+	var terraformVersion string = "0.14.5"
+
+	// Setup Terraform Version to use
+	var _, tfVersionSet = os.LookupEnv("CLAIRVOYANCE_TERRAFORM_VERSION")
+
+	if tfVersionSet {
+		terraformVersion = os.Getenv("CLAIRVOYANCE_TERRAFORM_VERSION")
+	}
+
+	return terraformVersion
+}

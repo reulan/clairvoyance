@@ -25,9 +25,12 @@ func DetectBinary(installDir string, version string) string {
 		}
 		return tfbinary
 	}
-	// validate if installed (check /usr/bin/terraform) - need to expand for Windows
-	return "/usr/bin/terraform"
-}
 
-func InstallTerraform(installDir string, version string) {
+	// validate if installed (check /usr/bin/terraform) - need to expand for Windows
+	// If Linux default to:
+	//var tfBinary = "/usr/bin/terraform"
+
+	// If MacOS default to:
+	var tfBinary = "/usr/local/bin/terraform"
+	return tfBinary
 }
