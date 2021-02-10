@@ -10,8 +10,18 @@ import (
 
 var TerraformBinaryContext = context.Background()
 
+func DetectBinary(version string) string {
+	// validate if installed (check /usr/bin/terraform) - need to expand for Windows
+	// If Linux default to:
+	//var tfBinary = "/usr/bin/terraform"
+
+	// If MacOS default to:
+	var tfBinary = "/usr/local/bin/terraform"
+	return tfBinary
+}
+
 //Identify if lastest (or specified) version binary is installed in a certain directory.
-func DetectBinary(installDir string, version string) string {
+func InstallBinary(installDir string, version string) string {
 	if version == "" {
 		tfbinary, err := tfinstall.Find(TerraformBinaryContext, tfinstall.LatestVersion(installDir, false))
 		if err != nil {
@@ -25,9 +35,4 @@ func DetectBinary(installDir string, version string) string {
 		}
 		return tfbinary
 	}
-	// validate if installed (check /usr/bin/terraform) - need to expand for Windows
-	return "/usr/bin/terraform"
-}
-
-func InstallTerraform(installDir string, version string) {
 }
