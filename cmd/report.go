@@ -44,8 +44,9 @@ var reportCmd = &cobra.Command{
 		optionFestive, _ := cmd.Flags().GetBool("festive")
 
 		// Configure Terraform settings for Clairvoyance
-		tfBinary := terraform.DetectTerraformBinary()
-		//tfVersion := terraform.DetectTerraformVersion()
+		tfVersion := terraform.DetectTerraformVersion()
+
+		tfBinary := terraform.DetectBinary(tfVersion)
 		cvProjects, cvIsPlannable := general.GetPlannableProjects()
 
 		// Terraform Drift Report
