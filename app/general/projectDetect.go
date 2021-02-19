@@ -43,9 +43,9 @@ func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 
 			// check if dir is unique
 			if contains(projects, projectPlanDir) {
-				log.Printf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
+				log.Debugf("[WalkMatch] Project %s exists in []string array.", projectPlanDir)
 			} else if moduleMatched {
-				log.Printf("[WalkMatch] Project %s is a Terraform module.", projectPlanDir)
+				log.Debugf("[WalkMatch] Project %s is a Terraform module.", projectPlanDir)
 			} else {
 				projects = append(projects, projectPlanDir)
 			}
@@ -62,7 +62,7 @@ func FindPlannableProjects(baseDir string, pattern string) ([]string, error) {
 func contains(projects []string, projectDir string) bool {
 	for _, dir := range projects {
 		if dir == projectDir {
-			log.Printf("[contains] %s exists in projects []string.", dir)
+			log.Debugf("[contains] %s exists in projects []string.", dir)
 			return true
 		}
 	}

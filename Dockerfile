@@ -14,7 +14,6 @@ COPY app/ app/
 COPY cmd/ cmd/
 COPY config/ config/
 COPY log/ log/
-COPY tftest/ tftest/
 COPY version/ version/
 COPY main.go .
 RUN go build -o ./bin/clairvoyance .
@@ -31,6 +30,7 @@ RUN apk add terraform
 RUN adduser -D -g '' clairvoyance
 USER clairvoyance
 WORKDIR /app
+COPY tftest/ /app/tftest/
 COPY --chown=clairvoyance:clairvoyance --from=clairvoyance_build /clairvoyance-build/bin/clairvoyance .
 COPY --chown=clairvoyance:clairvoyance tftest/ /app/tftest/
 

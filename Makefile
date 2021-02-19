@@ -65,12 +65,12 @@ push: docker
 shell: docker
 	docker run --rm -it \
 		-e CLAIRVOYANCE_TERRAFORM_VERSION=${CLAIRVOYANCE_TERRAFORM_VERSION} \
-		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest/drift" \
+		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest" \
 		$(IMAGE):$(GIT_SHORT) ash
 
 # Run clairvoyance in a Docker container against the `tftest` resources.
-test: docker
+docker-test: docker
 	docker run --rm -it \
 		-e CLAIRVOYANCE_TERRAFORM_VERSION=${CLAIRVOYANCE_TERRAFORM_VERSION} \
-		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest/drift" \
+		-e CLAIRVOYANCE_PROJECT_DIR="/app/tftest" \
 		$(IMAGE):$(GIT_SHORT)
