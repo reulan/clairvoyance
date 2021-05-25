@@ -21,9 +21,15 @@ In the future I would like to support:
 - Generate HCL code suggestions
 - Report to other mediums (Discord, Slack, IRC, email)
 
-### Screenshots
+### Preview (Screenshots + Video)
+#### Hashicorp Holiday Hackstravaganza
 This screenshot comes from my [submission and work done for the HashiCorp Holiday Hackstravaganza](https://discuss.hashicorp.com/t/team-reulan/19347):
 ![clairvoyance](https://cdn.discordapp.com/attachments/431535786811457542/797034083011526666/unknown.png)
+[Hackathon Presentation](https://www.youtube.com/watch?v=p5ozPq2QEZE)
+
+#### HashiTalks 2021
+[Terraform Drift Detection and Reporting](https://www.hashicorp.com/resources/terraform-drift-detection-reporting)
+
 
 
 ## Project setup
